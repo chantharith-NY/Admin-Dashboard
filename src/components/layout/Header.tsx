@@ -118,11 +118,11 @@ function HistoryDropdown() {
   return (
     <div id="history-dropdown" className="relative">
       {/* Trigger */}
-      <button
+      <a
         type="button"
         onClick={() => setOpen(prev => !prev)}
         className={`
-          text-base lg:text-lg font-battambang font-medium transition
+          text-base lg:text-lg font-battambang font-medium transition cursor-pointer
           flex items-center gap-1
           ${
             isActive
@@ -142,7 +142,7 @@ function HistoryDropdown() {
         >
           ▾
         </span>
-      </button>
+      </a>
 
       {/* Dropdown */}
       {open && (

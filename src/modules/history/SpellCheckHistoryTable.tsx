@@ -9,7 +9,12 @@ export default function SpellCheckHistoryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    historyService.getHistory("spell_check").then(setData)
+    setLoading(false)
+
+    historyService
+      .getHistory("spell_check")
+      .then(setData)
+      .finally(() => setLoading(false))
   }, [])
 
   return (

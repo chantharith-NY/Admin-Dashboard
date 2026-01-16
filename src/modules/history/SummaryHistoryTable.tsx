@@ -9,7 +9,11 @@ export default function SummaryHistoryPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-    historyService.getHistory("summarize").then(setData)
+        setLoading(false)
+        historyService
+            .getHistory("summarize")
+            .then(setData)
+            .finally(() => setLoading(false))
     }, [])
 
     return (
