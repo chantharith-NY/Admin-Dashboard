@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react"
-import { Link, NavLink } from "react-router-dom"
+import { Link, NavLink, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -32,7 +33,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Desktop / Tablet Navigation */}
         <nav className="hidden md:flex items-center gap-5 lg:gap-7">
           <HeaderLink to="/admin" label="ផ្ទាំងគ្រប់គ្រង" exact />
-          <HeaderLink to="/admin/history" label="ប្រវត្តិ" />
+          <HistoryDropdown />
           <HeaderLink to="/admin/models" label="ម៉ូឌែល" />
           <HeaderLink to="/admin/users" label="អ្នកប្រើប្រាស់" />
           <button
@@ -82,6 +83,113 @@ function HeaderLink({
             ? "text-white border-b-2 border-white pb-1"
             : "text-white/80 hover:text-white"
         }
+        `
+      }
+    >
+      {label}
+    </NavLink>
+  )
+}
+
+function HistoryDropdown() {
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+
+  const isActive = location.pathname.startsWith("/admin/history")
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setOpen(false)
+  }, [location.pathname])
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest("#history-dropdown")) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div id="history-dropdown" className="relative">
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(prev => !prev)}
+        className={`
+          text-base lg:text-lg font-battambang font-medium transition
+          flex items-center gap-1
+          ${
+            isActive
+              ? "text-white border-b-2 border-white pb-1"
+              : "text-white/80 hover:text-white"
+          }
+        `}
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        ប្រវត្តិ
+        <span
+          className={`
+            text-sm transition-transform
+            ${open ? "rotate-180" : ""}
+          `}
+        >
+          ▾
+        </span>
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div
+          className="
+            absolute top-full mt-2
+            w-52
+            bg-white
+            rounded-lg
+            shadow-lg
+            overflow-hidden
+            z-50
+            animate-fade-in
+          "
+        >
+          <DropdownLink
+            to="/admin/history/summarize"
+            label="សង្ខេបអត្ថបទ"
+          />
+          <DropdownLink
+            to="/admin/history/spell-check"
+            label="កែអក្ខរាវិរុទ្ធ"
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DropdownLink({
+  to,
+  label,
+}: {
+  to: string
+  label: string
+}) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `
+          block px-4 py-2 text-sm font-battambang transition
+          ${
+            isActive
+              ? "bg-[#8BAD13] text-white"
+              : "text-gray-700 hover:bg-gray-100"
+          }
         `
       }
     >
