@@ -1,23 +1,23 @@
+import { useState } from "react"
+import Header from "../components/layout/Header"
+import Sidebar from "../components/layout/Sidebar"
 import { Outlet } from "react-router-dom"
 
 export default function AdminLayout() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r">
-        Sidebar
-      </aside>
+    <div className="min-h-screen flex flex-col">
+      {/* Header: always visible */}
+      <Header onMenuClick={() => setOpen(true)} />
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col">
-        <header className="h-14 bg-white border-b px-4 flex items-center">
-          Admin Header
-        </header>
+      {/* Sidebar: mobile only */}
+      <Sidebar open={open} onClose={() => setOpen(false)} />
 
-        <main className="flex-1 p-4 overflow-auto">
-          <Outlet />
-        </main>
-      </div>
+      {/* Content */}
+      <main className="flex-1 p-4 md:p-6">
+        <Outlet />
+      </main>
     </div>
   )
 }
