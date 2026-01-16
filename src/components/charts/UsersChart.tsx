@@ -22,9 +22,9 @@ ChartJS.register(
 export default function UsersChart() {
   return (
     <div className="bg-white rounded-xl shadow p-5">
-      <h3 className="font-semibold mb-4">
+      <p className="mb-4 font-moul">
         កំណើនអ្នកប្រើប្រាស់ (ប្រចាំខែ)
-      </h3>
+      </p>
 
       {/* FIXED HEIGHT CONTAINER */}
       <div className="relative h-64">
@@ -37,6 +37,7 @@ export default function UsersChart() {
               legend: { display: false },
             },
           }}
+          
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react"
-import { Link, NavLink, useMatch } from "react-router-dom"
+import { Link, NavLink } from "react-router-dom"
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -35,6 +35,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <HeaderLink to="/admin/history" label="ប្រវត្តិ" />
           <HeaderLink to="/admin/models" label="ម៉ូឌែល" />
           <HeaderLink to="/admin/users" label="អ្នកប្រើប្រាស់" />
+          <button
+            onClick={() => {
+              localStorage.removeItem("admin_token")
+              window.location.href = "/admin/login"
+            }}
+            className="text-base lg:text-lg font-battambang font-medium transition text-white/80 hover:text-white"
+          >
+            ចាកចេញ
+          </button>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -61,21 +70,20 @@ function HeaderLink({
   label: string
   exact?: boolean
 }) {
-  const match = useMatch(
-    exact ? to : `${to}/*`
-  )
-
   return (
     <NavLink
       to={to}
-      className={`
+      end={exact}
+      className={({ isActive }) =>
+        `
         text-base lg:text-lg font-battambang font-medium transition
         ${
-          match
+          isActive
             ? "text-white border-b-2 border-white pb-1"
             : "text-white/80 hover:text-white"
         }
-      `}
+        `
+      }
     >
       {label}
     </NavLink>

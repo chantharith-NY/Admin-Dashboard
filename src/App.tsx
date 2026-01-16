@@ -2,8 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
 
 import AdminLayout from "./layouts/AdminLayout"
-
-// Pages
+import LoginPage from "./modules/auth/LoginPage"
 import DashboardPage from "./modules/dashboard/DashboardPage"
 import HistoryPage from "./modules/history/HistoryPage"
 import ModelsPage from "./modules/models/ModelsPage"
@@ -15,13 +14,18 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* ===== ADMIN LAYOUT ===== */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="history" element={<HistoryPage />} />
-          <Route path="models" element={<ModelsPage />} />
-          <Route path="users" element={<UsersPage />} />
+
+        {/* ✅ PUBLIC ADMIN ROUTE */}
+        <Route path="/admin/login" element={<LoginPage />} />
+
+        {/* ✅ PROTECTED ADMIN ROUTES */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<DashboardPage />} />
+          <Route path="/admin/history" element={<HistoryPage />} />
+          <Route path="/admin/models" element={<ModelsPage />} />
+          <Route path="/admin/users" element={<UsersPage />} />
         </Route>
+
       </Routes>
     </AnimatePresence>
   )

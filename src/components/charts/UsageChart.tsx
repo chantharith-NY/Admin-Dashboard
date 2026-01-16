@@ -24,9 +24,9 @@ ChartJS.register(
 export default function UsageChart() {
   return (
     <div className="bg-white rounded-xl shadow p-5">
-      <h3 className="font-semibold mb-4">
+      <p className="mb-4 font-moul">
         ការប្រើប្រាស់ប្រព័ន្ធ (ប្រចាំសប្តាហ៍)
-      </h3>
+      </p>
 
       {/* FIXED HEIGHT CONTAINER */}
       <div className="relative h-64">

@@ -20,7 +20,7 @@ export const usersChartData = {
       label: "អ្នកប្រើប្រាស់",
       data: [40, 55, 70, 85, 120],
       backgroundColor: "#8BAD13",
-      borderRadius: 6,
+      borderRadius: 3,
     },
   ],
 }
