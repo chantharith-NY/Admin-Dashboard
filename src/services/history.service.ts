@@ -1,5 +1,6 @@
-import { api } from "./api"
+
 import type { HistoryItem } from "../types/history"
+import api from "./api"
 
 type HistoryType = "summarize" | "spell_check"
 

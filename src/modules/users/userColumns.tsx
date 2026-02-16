@@ -5,7 +5,8 @@ export const userColumns = (
   canEdit: boolean,
   canDelete: boolean,
   onEdit: (u: AdminUser) => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
+  onToggleStatus: (u: AdminUser) => void
 ): TableColumn<AdminUser>[] => [
   {
     key: "id",
@@ -18,7 +19,7 @@ export const userColumns = (
   },
   {
     key: "email",
-    title: "Email",
+    title: "អ៊ីមែល",
   },
   {
     key: "role",
@@ -27,12 +28,14 @@ export const userColumns = (
   {
     key: "is_active",
     title: "ស្ថានភាព",
-    render: u =>
-      u.is_active ? (
-        <span className="text-green-600 font-battambang font-semibold text-lg">សកម្ម</span>
-      ) : (
-        <span className="text-red-500 font-battambang font-semibold text-lg">អសកម្ម</span>
-      ),
+    render: user => (
+      <input
+        type="checkbox"
+        checked={user.is_active}
+        onChange={() => onToggleStatus(user)}
+        className="w-5 h-5 accent-green-600 cursor-pointer text-white"
+      />
+    ),
   },
   {
     key: "actions",
@@ -55,6 +58,17 @@ export const userColumns = (
             លុបចេញ
           </button>
         )}
+
+        {/* <button
+          onClick={() => onToggleStatus(user)}
+          className={`px-3 py-1 rounded-lg min-w-15 text-center font-battambang font-semibold text-white ${
+            user.is_active
+              ? "bg-orange-500 hover:bg-orange-600"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          {user.is_active ? "បិទ" : "បើក"}
+        </button> */}
       </div>
     ),
   },

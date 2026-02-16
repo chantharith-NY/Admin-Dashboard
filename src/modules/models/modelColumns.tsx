@@ -2,12 +2,16 @@
 import type { TableColumn } from "../../components/common/DataTable"
 import type { ModelItem } from "../../types/model"
 
-export const modelColumns: TableColumn<ModelItem>[] = [
+export const modelColumns = (
+  onToggle: (id: number) => void,
+  onEdit: (m: ModelItem) => void,
+  onDelete: (id: number) => void
+): TableColumn<ModelItem>[] => [
   {
     key: "no",
     title: "ល.រ",
-    render: (_, index) => index + 1,
-    className: "w-16",
+    render: (_, i) => i + 1,
+    className: "w-14",
   },
   {
     key: "model_name",
@@ -23,29 +27,49 @@ export const modelColumns: TableColumn<ModelItem>[] = [
   },
   {
     key: "model_path",
-    title: "Model Path",
-    className: "text-xs text-gray-500",
-  },
-  {
-    key: "is_active",
-    title: "ស្ថានភាព",
+    title: "លីងម៉ូឌែល",
     render: row => (
-      <span
-        className={`
-          px-2 py-1 rounded text-sm
-          ${row.is_active
-            ? "bg-green-100 text-green-700"
-            : "bg-red-100 text-red-700"}
-        `}
+      <a
+        href={row.model_path}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline"
       >
-        {row.is_active ? "ដំណើរការ" : "បិទ"}
-      </span>
+        {row.model_path}
+      </a>
     ),
   },
   {
-    key: "created_at",
-    title: "កាលបរិច្ឆេទ",
-    render: row =>
-      new Date(row.created_at).toLocaleDateString("km-KH"),
+    key: "is_active",
+    title: "ប្រើប្រាស់",
+    render: row => (
+      <input
+        type="checkbox"
+        checked={row.is_active}
+        onChange={() => onToggle(row.id)}
+        className="w-5 h-5 accent-[#8BAD13]"
+      />
+    ),
+    className: "text-center",
+  },
+  {
+    key: "actions",
+    title: "សកម្មភាព",
+    render: row => (
+      <div className="flex gap-2">
+        <button
+          onClick={() => onEdit(row)}
+            className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 min-w-15 text-center font-battambang font-semibold"
+          >
+            កែតម្រូវ
+          </button>
+        <button
+          onClick={() => onDelete(row.id)}
+            className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 min-w-15 text-center font-battambang font-semibold"
+          >
+            លុបចេញ
+          </button>
+      </div>
+    ),
   },
 ]

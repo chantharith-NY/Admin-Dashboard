@@ -1,5 +1,5 @@
-import { api } from "./api"
 import type { ModelItem } from "../types/model"
+import api from "./api"
 
 export const modelService = {
   async getModels(): Promise<ModelItem[]> {

@@ -9,8 +9,6 @@ export default function SpellCheckHistoryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(false)
-
     historyService
       .getHistory("spell_check")
       .then(setData)
@@ -18,8 +16,12 @@ export default function SpellCheckHistoryPage() {
   }, [])
 
   return (
-    <div className="space-y-4">
-      <p className="text-3xl font-moul">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+
+      <p className="
+        font-moul
+        text-xl sm:text-2xl lg:text-3xl
+      ">
         ប្រវត្តិកែអក្ខរាវិរុទ្ធ
       </p>
 

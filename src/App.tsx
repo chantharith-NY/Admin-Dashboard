@@ -1,6 +1,8 @@
 import { Routes, Route, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
 
+import ProtectedRoute from "./routes/ProtectedRoute"
+
 import AdminLayout from "./layouts/AdminLayout"
 import LoginPage from "./modules/auth/LoginPage"
 import DashboardPage from "./modules/dashboard/DashboardPage"
@@ -16,11 +18,17 @@ export default function App() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
 
-        {/* ✅ PUBLIC ADMIN ROUTE */}
+        {/* PUBLIC ROUTE */}
         <Route path="/admin/login" element={<LoginPage />} />
 
-        {/* ✅ PROTECTED ADMIN ROUTES */}
-        <Route element={<AdminLayout />}>
+        {/* PROTECTED ROUTES */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/admin" element={<DashboardPage />} />
           <Route path="/admin/history/summarize" element={<SummaryHistoryPage />} />
           <Route path="/admin/history/spell-check" element={<SpellCheckHistoryPage />} />

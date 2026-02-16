@@ -3,5 +3,6 @@ export interface AdminUser {
   name: string
   email: string
   role: string
+  password?: string
   is_active: boolean
 }

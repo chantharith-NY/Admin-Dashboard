@@ -20,13 +20,23 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <div className="bg-white rounded-xl shadow overflow-x-auto">
-      <table className="w-full border-collapse">
+
+      <table className="w-full border-collapse min-w-160">
         <thead>
-          <tr className="bg-gray-100 text-left text-md font-semibold font-moul">
+          <tr className="
+            bg-gray-100 text-left font-moul font-semibold
+            text-xs sm:text-sm lg:text-base
+          ">
             {columns.map(col => (
               <th
                 key={col.key}
-                className={`px-4 py-3 border-b ${col.className ?? ""}`}
+                className={`
+                  px-3 py-2
+                  sm:px-4 sm:py-2.5
+                  lg:px-4 lg:py-3
+                  border-b
+                  ${col.className ?? ""}
+                `}
               >
                 {col.title}
               </th>
@@ -36,10 +46,13 @@ export default function DataTable<T>({
 
         <tbody>
           {data.length === 0 ? (
-            <tr className="font-battambang text-md">
+            <tr className="font-battambang text-sm sm:text-base">
               <td
                 colSpan={columns.length}
-                className="px-4 py-6 text-center text-gray-400"
+                className="
+                  px-4 py-6
+                  text-center text-gray-400
+                "
               >
                 {emptyText}
               </td>
@@ -48,12 +61,21 @@ export default function DataTable<T>({
             data.map((row, index) => (
               <tr
                 key={index}
-                className="border-b font-battambang text-md hover:bg-gray-50 transition"
+                className="
+                  border-b font-battambang
+                  text-sm sm:text-base
+                  hover:bg-gray-50 transition
+                "
               >
                 {columns.map(col => (
                   <td
                     key={col.key}
-                    className={`px-4 py-3 ${col.className ?? ""}`}
+                    className={`
+                      px-3 py-2
+                      sm:px-4 sm:py-2.5
+                      lg:px-4 lg:py-3
+                      ${col.className ?? ""}
+                    `}
                   >
                     {col.render
                       ? col.render(row, index)
