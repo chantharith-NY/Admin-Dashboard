@@ -1,20 +1,29 @@
-import { useEffect, useState } from "react"
-import DataTable from "../../components/common/DataTable"
-import { historyColumns } from "./historyColumns"
-import type { HistoryItem } from "../../types/history"
-import { historyService } from "../../services/history.service"
+import { useEffect, useState } from "react";
+import DataTable from "../../components/common/DataTable";
+import { historyColumns } from "./historyColumns";
+import type { HistoryItem } from "../../types/history";
+import { historyService } from "../../services/history.service";
 
 export default function SummaryHistoryPage() {
-  const [data, setData] = useState<HistoryItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<HistoryItem[]>([]);
+  const [meta, setMeta] = useState<any>(null);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(false)
-    historyService
-      .getHistory("summarize")
-      .then(setData)
-      .finally(() => setLoading(false))
-  }, [])
+    fetchHistory(page);
+  }, [page]);
+
+  const fetchHistory = async (page: number) => {
+    setLoading(true);
+    try {
+      const res = await historyService.getHistory("summarize", page);
+      setData(res.data);
+      setMeta(res.data.meta);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -27,7 +36,29 @@ export default function SummaryHistoryPage() {
         data={data}
         emptyText={loading ? "កំពុងទាញយក..." : "គ្មានទិន្នន័យ"}
       />
-    </div>
-  )
-}
+      {meta && (
+        <div className="flex justify-between items-center mt-4 font-battambang">
+          <button
+            disabled={!meta.prev_page_url}
+            onClick={() => setPage(page - 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            មុន
+          </button>
 
+          <span>
+            ទំព័រ {meta.current_page} / {meta.last_page}
+          </span>
+
+          <button
+            disabled={!meta.next_page_url}
+            onClick={() => setPage(page + 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            បន្ទាប់
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

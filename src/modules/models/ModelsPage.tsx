@@ -19,31 +19,63 @@ export default function ModelsPage() {
 
   const { showMessage } = useMessage()
 
-  useEffect(() => { modelService.getModels().then(res => setData(Array.isArray(res) ? res : [])).finally(() => setLoading(false)) }, [])
+  useEffect(() => {
+    fetchModels()
+  }, [])
+
+  const fetchModels = async () => {
+    try {
+      const models = await modelService.getModels()
+      setData(models)
+    } catch (error) {
+      showMessage("error", "មិនអាចទាញយកម៉ូឌែលបានទេ")
+    } finally {
+      setLoading(false)
+    }
+  }
    
   /* ---------------- Save (Add / Edit) ---------------- */ 
-  const handleSaveModel = (model: ModelItem) => { 
-    setData(prev => { 
-      const exists = prev.find(m => m.id === model.id) 
-      return exists ? prev.map(m => (m.id === model.id ? model : m)) : [...prev, model] 
-    }) 
-      setEditingModel(null) 
-      showMessage("success", "រក្សាទុកម៉ូឌែលដោយជោគជ័យ") 
+  const handleSaveModel = async (model: ModelItem) => {
+    try {
+      if (!model.id) {
+        await modelService.createModel(model)
+        showMessage("success", "បង្កើតម៉ូឌែលដោយជោគជ័យ")
+      } else {
+        await modelService.updateModel(model.id, model)
+        showMessage("success", "កែប្រែម៉ូឌែលដោយជោគជ័យ")
+      }
+
+      await fetchModels()
+      setEditingModel(null)
+    } catch (error) {
+      showMessage("error", "មានបញ្ហាក្នុងការរក្សាទុកម៉ូឌែល")
     }
+  }
   
   /* ---------------- Toggle Active ---------------- */ 
-  const toggleActive = (id: number) => { 
-    setData(prev => prev.map(m => m.id === id ? {
-      ...m, is_active: !m.is_active } : m)) 
-    showMessage("success", "បានប្តូរទីតាំងម៉ូឌែលដោយជោគជ័យ") 
-  } 
+  const toggleActive = async (id: number) => {
+    try {
+      await modelService.toggleActive(id)
+      await fetchModels()
+      showMessage("success", "បានប្តូរស្ថានភាពម៉ូឌែលដោយជោគជ័យ")
+    } catch (error) {
+      showMessage("error", "មិនអាចប្តូរស្ថានភាពម៉ូឌែលបានទេ")
+    }
+  }
   
   /* ---------------- Delete ---------------- */ 
-  const confirmDelete = () => { 
-    if (deleteId === null) 
-      return setData(prev => prev.filter(m => m.id !== deleteId)) 
-    setDeleteId(null) 
-    showMessage("success", "បានលុបម៉ូឌែលដោយជោគជ័យ") 
+  const confirmDelete = async () => {
+    if (deleteId === null) return
+
+    try {
+      await modelService.deleteModel(deleteId)
+      await fetchModels()
+      showMessage("success", "បានលុបម៉ូឌែលដោយជោគជ័យ")
+    } catch (error) {
+      showMessage("error", "មិនអាចលុបម៉ូឌែលបានទេ")
+    }
+
+    setDeleteId(null)
   }
 
   return (
@@ -57,13 +89,11 @@ export default function ModelsPage() {
         <button
           onClick={() =>
             setEditingModel({
-              id: Date.now(),
               model_name: "",
               model_type: "summarization",
               model_path: "",
               is_active: true,
-              created_at: new Date().toISOString(),
-            })
+            } as ModelItem)
           }
           className="bg-[#8BAD13] text-white p-2 sm:p-2.5 rounded-lg flex items-center justify-center hover:bg-green-700 transition"
           title="បន្ថែមម៉ូឌែល"

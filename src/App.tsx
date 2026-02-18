@@ -1,5 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
+import { useEffect } from "react"
+import { visitorService } from "./services/visitor.service"
 
 import ProtectedRoute from "./routes/ProtectedRoute"
 
@@ -13,6 +15,17 @@ import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable"
 
 export default function App() {
   const location = useLocation()
+
+  // Track visitor info on initial load
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0]
+    const visited = localStorage.getItem("visited_date")
+
+    if (visited !== today) {
+      visitorService.trackVisit().catch(() => {})
+      localStorage.setItem("visited_date", today)
+    }
+  }, [])
 
   return (
     <AnimatePresence mode="wait">

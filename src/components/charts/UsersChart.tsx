@@ -1,5 +1,3 @@
-// src/components/charts/UsersChart.tsx
-
 import {
   Chart as ChartJS,
   BarElement,
@@ -9,7 +7,6 @@ import {
   Legend,
 } from "chart.js"
 import { Bar } from "react-chartjs-2"
-import { usersChartData } from "./chartData"
 
 ChartJS.register(
   BarElement,
@@ -19,17 +16,38 @@ ChartJS.register(
   Legend
 )
 
-export default function UsersChart() {
+interface Props {
+  data?: {
+    month: string
+    count: number
+  }[]
+}
+
+export default function UsersChart({ data }: Props) {
+
+  const safedata = Array.isArray(data) ? data : []
+
+  const chartData = {
+    labels: safedata.map(item => item.month),
+    datasets: [
+      {
+        label: "Users",
+        data: safedata.map(item => item.count),
+        backgroundColor: "#8BAD13",
+        borderRadius: 6,
+      },
+    ],
+  }
+
   return (
     <div className="bg-white rounded-xl shadow p-5">
       <p className="mb-4 font-moul">
         កំណើនអ្នកប្រើប្រាស់ (ប្រចាំខែ)
       </p>
 
-      {/* FIXED HEIGHT CONTAINER */}
       <div className="relative h-64">
         <Bar
-          data={usersChartData}
+          data={chartData}
           options={{
             responsive: true,
             maintainAspectRatio: false,
@@ -37,10 +55,8 @@ export default function UsersChart() {
               legend: { display: false },
             },
           }}
-          
         />
       </div>
     </div>
   )
 }
-

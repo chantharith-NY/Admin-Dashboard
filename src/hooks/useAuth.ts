@@ -31,10 +31,12 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     const res = await api.post("/login", { email, password })
 
-    const token = res.data.data.token
+    const accessToken = res.data.data.access_token
+    const refreshToken = res.data.data.refresh_token
     const user = res.data.data.user
 
-    localStorage.setItem("admin_token", token)
+    localStorage.setItem("admin_token", accessToken)
+    localStorage.setItem("refresh_token", refreshToken)
     localStorage.setItem("admin_user", JSON.stringify(user))
 
     setIsAuthenticated(true)

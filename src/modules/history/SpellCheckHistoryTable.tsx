@@ -9,11 +9,20 @@ export default function SpellCheckHistoryPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    historyService
-      .getHistory("spell_check")
-      .then(setData)
-      .finally(() => setLoading(false))
+    fetchHistory()
   }, [])
+
+  const fetchHistory = async () => {
+    try {
+      setLoading(true)
+      const records = await historyService.getHistory("spell-check")
+      setData(records.data)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-3 sm:space-y-4 lg:space-y-5">
