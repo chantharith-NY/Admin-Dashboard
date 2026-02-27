@@ -1,15 +1,13 @@
 // src/types/model.ts
 
-export type ModelType = "summarization" | "spell_check"
 export interface ModelItem {
-  id: number
+  id?: number
+  model_key?: string
   model_name: string
-  model_type: ModelType
-  model_path: string
-  description?: string
+  model_type: "summarization" | "spell_check"
+  deployment_type: "api" | "internal"
+  api_url?: string | null
+  s3_path?: string | null
+  description?: string | null
   is_active: boolean
-  created_at: string
-  updated_at?: string
-  usage_count?: number
-  created_by?: string
 }

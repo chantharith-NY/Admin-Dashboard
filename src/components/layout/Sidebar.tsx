@@ -1,10 +1,10 @@
 // src/components/layout/Sidebar.tsx
-import { X } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { X } from "lucide-react";
+import { Link, useLocation} from "react-router-dom";
 
 interface SidebarProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
@@ -30,12 +30,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       >
         {/* Header */}
         <div className="px-5 py-4 flex items-center justify-between border-b border-white/20 h-20">
-          <Link to="/admin" onClick={onClose} className="flex items-center gap-3">
-            <img
-              src="/rac-logo.png"
-              alt="RAC Logo"
-              className="h-10"
-            />
+          <Link
+            to="/admin"
+            onClick={onClose}
+            className="flex items-center gap-3"
+          >
+            <img src="/rac-logo.png" alt="RAC Logo" className="h-10" />
             <div>
               <p className="text-white font-semibold text-xs font-moulpali">
                 រាជបណ្ឌិត្យសភាកម្ពុជា
@@ -55,11 +55,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <nav className="pb-6">
           {/* Dashboard */}
           <Section title="ផ្ទាំងគ្រប់គ្រង">
-            <NavItem
-              to="/admin"
-              label="ផ្ទាំងគ្រប់គ្រង"
-              onClick={onClose}
-            />
+            <NavItem to="/admin" label="ផ្ទាំងគ្រប់គ្រង" onClick={onClose} />
           </Section>
 
           {/* History */}
@@ -78,11 +74,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
           {/* Management */}
           <Section title="ការគ្រប់គ្រងប្រព័ន្ធ">
-            <NavItem
-              to="/admin/models"
-              label="ម៉ូឌែល AI"
-              onClick={onClose}
-            />
+            <NavItem to="/admin/models" label="ម៉ូឌែល AI" onClick={onClose} />
             <NavItem
               to="/admin/users"
               label="អ្នកប្រើប្រាស់"
@@ -94,8 +86,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <Section title="">
             <button
               onClick={() => {
-                localStorage.removeItem("admin_token")
-                window.location.href = "/admin/login"
+                localStorage.removeItem("admin_token");
+                window.location.href = "/";
               }}
               className="
                 w-full text-left px-3 py-2 rounded-md
@@ -103,13 +95,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 transition font-battambang
               "
             >
+              
               ចាកចេញ
             </button>
           </Section>
         </nav>
       </aside>
     </>
-  )
+  );
 }
 
 /* ================== Section ================== */
@@ -118,10 +111,10 @@ function Section({
   title,
   children,
 }: {
-  title: string
-  children: React.ReactNode
+  title: string;
+  children: React.ReactNode;
 }) {
-  if (!children) return null
+  if (!children) return null;
 
   return (
     <div className="px-5 mt-6">
@@ -135,7 +128,7 @@ function Section({
       )}
       <div className="space-y-2">{children}</div>
     </div>
-  )
+  );
 }
 
 /* ================== Nav Item ================== */
@@ -145,12 +138,12 @@ function NavItem({
   label,
   onClick,
 }: {
-  to: string
-  label: string
-  onClick?: () => void
+  to: string;
+  label: string;
+  onClick?: () => void;
 }) {
-  const location = useLocation()
-  const isActive = location.pathname.startsWith(to)
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(to);
 
   return (
     <Link
@@ -167,5 +160,5 @@ function NavItem({
     >
       {label}
     </Link>
-  )
+  );
 }

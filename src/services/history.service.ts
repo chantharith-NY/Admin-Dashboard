@@ -2,22 +2,22 @@ import api from "./api"
 
 export const historyService = {
 
-  async getHistory(type: "summarize" | "spell-check", perpage = 10) {
-    const res = await api.get(`/history/${type}?perpage=${perpage}`)
+  async getHistory(
+    type: "summarize" | "spell-check",
+    page = 1
+  ) {
+    const res = await api.get(
+      `/history/${type}?page=${page}`
+    )
 
-    return { 
-      data : res.data.data.data,
-      meta: res.data.data.meta
-    }
-    // return res.data.data.data
+    return res.data.data
   },
 
-  async exportHistory(type: "summarize" | "spell-check", format: string ) {
+  async exportHistory(type: "summarize" | "spell-check", format: string) {
     const res = await api.get(
       `/history/${type}/export?format=${format}`,
       { responseType: "blob" }
     )
-    return res.data.data
+    return res.data
   }
-
 }

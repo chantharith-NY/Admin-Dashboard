@@ -1,11 +1,13 @@
 import type { TableColumn } from "../../components/common/DataTable";
 import type { HistoryItem } from "../../types/history";
 
-export const historyColumns: TableColumn<HistoryItem>[] = [
+export const historyColumns = (
+  meta: any,
+) : TableColumn<HistoryItem>[] => [
   {
     key: "no",
     title: "ល.រ",
-    render: (_, index) => index + 1,
+    render: (_, index) => meta ? meta.from + index : index + 1,
     className: "w-16",
   },
   {

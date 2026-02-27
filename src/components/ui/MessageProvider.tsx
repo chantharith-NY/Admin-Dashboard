@@ -25,14 +25,21 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     }, 3000)
   }
 
+  const closeMessage = () => {
+    setMessage(null)
+  }
+
   return (
     <MessageContext.Provider value={{ showMessage }}>
       {children}
 
-      {/* Toast container */}
       {message && (
         <div className="fixed bottom-5 right-5 z-50 w-80">
-          <Message type={message.type} text={message.text} />
+          <Message
+            type={message.type}
+            text={message.text}
+            onClose={closeMessage}
+          />
         </div>
       )}
     </MessageContext.Provider>

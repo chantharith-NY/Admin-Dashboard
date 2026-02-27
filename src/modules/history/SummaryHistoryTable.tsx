@@ -10,6 +10,10 @@ export default function SummaryHistoryPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  const username = JSON.parse(localStorage.getItem("admin_user") || "{}").name;
+  const now = new Date();
+  const formatted = now.toISOString().replace(/[:T]/g, "_").split(".")[0];
+
   useEffect(() => {
     fetchHistory(page);
   }, [page]);
@@ -19,7 +23,7 @@ export default function SummaryHistoryPage() {
     try {
       const res = await historyService.getHistory("summarize", page);
       setData(res.data);
-      setMeta(res.data.meta);
+      setMeta(res);
     } finally {
       setLoading(false);
     }
@@ -30,9 +34,35 @@ export default function SummaryHistoryPage() {
       <p className="text-xl sm:text-2xl lg:text-3xl font-moul">
         ប្រវត្តិសង្ខេបអត្ថបទ
       </p>
+      <div className="flex justify-end mb-3">
+        <select
+          className="border px-3 py-1 rounded font-battambang"
+          defaultValue=""
+          onChange={async (e) => {
+            const format = e.target.value;
+            if (!format) return;
+
+            const blob = await historyService.exportHistory(
+              "summarize",
+              format,
+            );
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${username}_${formatted}_summarize.${format}`;
+            link.click();
+          }}
+        >
+          <option value="">Export</option>
+          <option value="csv">CSV</option>
+          <option value="txt">TXT</option>
+          <option value="xls">Excel</option>
+        </select>
+      </div>
 
       <DataTable
-        columns={historyColumns}
+        columns={historyColumns(meta)}
         data={data}
         emptyText={loading ? "កំពុងទាញយក..." : "គ្មានទិន្នន័យ"}
       />

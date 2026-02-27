@@ -53,7 +53,7 @@ const logoutLocal = () => {
   localStorage.removeItem("admin_token")
   localStorage.removeItem("refresh_token")
   localStorage.removeItem("admin_user")
-  window.location.href = "/admin/login"
+  window.location.href = "/"
 }
 
 export default api

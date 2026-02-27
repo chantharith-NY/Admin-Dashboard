@@ -16,13 +16,13 @@ export default function Select({
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full border rounded px-3 py-2 text-left"
+        className="w-full border rounded px-3 py-2 text-left h-10"
       >
         {value}
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow">
+        <div className="absolute z-50 mt-1 w-full bg-white border rounded shadow h-fit">
           {options.map(opt => (
             <div
               key={opt}

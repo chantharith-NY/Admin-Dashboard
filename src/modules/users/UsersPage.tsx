@@ -1,117 +1,115 @@
-import { useState, useEffect } from "react"
-import DataTable from "../../components/common/DataTable"
-import ConfirmModal from "../../components/common/ConfirmModal"
-import UserFormModal from "./UserFormModal"
+import { useState, useEffect } from "react";
+import DataTable from "../../components/common/DataTable";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import UserFormModal from "./UserFormModal";
 // import { mockUsers } from "./mockUsers"
-import { userColumns } from "./userColumns"
-import type { AdminUser } from "../../types/adminUser"
-import { usePermission } from "../../hooks/usePermission"
-import { useMessage } from "../../components/common/MessageProvider"
-import { PlusIcon } from "lucide-react"
+import { userColumns } from "./userColumns";
+import type { AdminUser } from "../../types/adminUser";
+import { usePermission } from "../../hooks/usePermission";
+import { useMessage } from "../../components/ui/MessageProvider";
+import { PlusIcon } from "lucide-react";
 
 import {
   getUsers,
   createUser,
   updateUser,
   deleteUser,
-} from "../../services/user.service"
+} from "../../services/user.service";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([])
+  const [users, setUsers] = useState<AdminUser[]>([]);
 
-  const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
-  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { showMessage } = useMessage()
+  const { showMessage } = useMessage();
 
-  const canCreate = usePermission("user.create")
-  const canEdit = usePermission("user.update")
-  const canDelete = usePermission("user.delete")
+  const canCreate = usePermission("user.create");
+  const canEdit = usePermission("user.update");
+  const canDelete = usePermission("user.delete");
 
   useEffect(() => {
-    getUsers().then(setUsers)
-  }, [])
+    getUsers().then(setUsers);
+  }, []);
 
   /* ---------------- Fetch user ---------------- */
 
   const fetchUsers = async () => {
     try {
-      const data = await getUsers()
-      setUsers(data)
+      const data = await getUsers();
+      setUsers(data);
     } catch (error) {
-      showMessage("error", "បរាជ័យក្នុងការទាញយកអ្នកប្រើប្រាស់")
+      showMessage("error", "បរាជ័យក្នុងការទាញយកអ្នកប្រើប្រាស់");
     }
-  }
+  };
 
   /* ---------------- Toggle status ---------------- */
 
-  const currentUser = JSON.parse(
-    localStorage.getItem("admin_user") || "{}"
-  )
+  const currentUser = JSON.parse(localStorage.getItem("admin_user") || "{}");
 
   const handleToggleStatus = async (user: AdminUser) => {
     // 🔒 Prevent self deactivation
     if (user.id === currentUser.id) {
-      showMessage("error", "អ្នកមិនអាចបិទគណនីរបស់ខ្លួនបានទេ")
-      return
+      showMessage("error", "អ្នកមិនអាចបិទគណនីរបស់ខ្លួនបានទេ");
+      return;
     }
 
     try {
       await updateUser(user.id, {
         ...user,
         is_active: !user.is_active,
-      })
+      });
 
       showMessage(
         "success",
         user.is_active
           ? "បានបិទអ្នកប្រើប្រាស់ដោយជោគជ័យ"
-          : "បានបើកអ្នកប្រើប្រាស់ដោយជោគជ័យ"
-      )
+          : "បានបើកអ្នកប្រើប្រាស់ដោយជោគជ័យ",
+      );
 
-      await fetchUsers()
+      await fetchUsers();
     } catch (error) {
-      showMessage("error", "មានបញ្ហាក្នុងការប្តូរស្ថានភាព")
+      showMessage("error", "មានបញ្ហាក្នុងការប្តូរស្ថានភាព");
     }
-  }
+  };
 
   /* ---------------- Add / Edit ---------------- */
 
   const handleSaveUser = async (user: AdminUser) => {
     try {
       if (!user.id || user.id === 0) {
-        await createUser(user)
-        showMessage("success", "បង្កើតអ្នកប្រើប្រាស់ដោយជោគជ័យ")
+        await createUser(user);
+        showMessage("success", "បង្កើតអ្នកប្រើប្រាស់ដោយជោគជ័យ");
       } else {
-        await updateUser(user.id, user)
-        showMessage("success", "កែប្រែអ្នកប្រើប្រាស់ដោយជោគជ័យ")
+        await updateUser(user.id, user);
+        showMessage("success", "កែប្រែអ្នកប្រើប្រាស់ដោយជោគជ័យ");
       }
 
-      await fetchUsers()
-      setEditingUser(null)
+      await fetchUsers();
+      setEditingUser(null);
     } catch (error: any) {
       showMessage(
         "error",
-        error.response?.data?.message || "មានបញ្ហាក្នុងការរក្សាទុក"
-      )
+        error.response?.data?.message || "មានបញ្ហាក្នុងការរក្សាទុក",
+      );
     }
-  }
+  };
 
   /* ---------------- Delete ---------------- */
 
   const confirmDelete = async () => {
-    if (deleteId === null) return
+    if (deleteId === null) return;
 
     try {
-      await deleteUser(deleteId)
-      showMessage("success", "បានលុបអ្នកប្រើប្រាស់ដោយជោគជ័យ")
-      fetchUsers()
+      await deleteUser(deleteId);
+      showMessage("success", "បានលុបអ្នកប្រើប្រាស់ដោយជោគជ័យ");
+      fetchUsers();
     } catch (error) {
-      showMessage("error", "បរាជ័យក្នុងការលុប")
+      showMessage("error", "បរាជ័យក្នុងការលុប");
     }
 
-    setDeleteId(null)
-  }
+    setDeleteId(null);
+  };
 
   return (
     <div className="space-y-5 p-4 sm:p-6 lg:p-8">
@@ -149,7 +147,7 @@ export default function UsersPage() {
           canDelete,
           setEditingUser,
           setDeleteId,
-          handleToggleStatus
+          handleToggleStatus,
         )}
         data={users}
       />
@@ -170,5 +168,5 @@ export default function UsersPage() {
         onCancel={() => setDeleteId(null)}
       />
     </div>
-  )
+  );
 }

@@ -1,38 +1,38 @@
-import { Routes, Route, useLocation } from "react-router-dom"
-import { AnimatePresence } from "framer-motion"
-import { useEffect } from "react"
-import { visitorService } from "./services/visitor.service"
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
+import { visitorService } from "./services/visitor.service";
 
-import ProtectedRoute from "./routes/ProtectedRoute"
+import ProtectedRoute from "./routes/ProtectedRoute";
 
-import AdminLayout from "./layouts/AdminLayout"
-import LoginPage from "./modules/auth/LoginPage"
-import DashboardPage from "./modules/dashboard/DashboardPage"
-import ModelsPage from "./modules/models/ModelsPage"
-import UsersPage from "./modules/users/UsersPage"
-import SummaryHistoryPage from "./modules/history/SummaryHistoryTable"
-import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable"
+import AdminLayout from "./layouts/AdminLayout";
+import LoginPage from "./modules/auth/LoginPage";
+import DashboardPage from "./modules/dashboard/DashboardPage";
+import UsersPage from "./modules/users/UsersPage";
+import SummaryHistoryPage from "./modules/history/SummaryHistoryTable";
+import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable";
+import EntityPage from "./modules/entities/EntityPage";
 
 export default function App() {
-  const location = useLocation()
+  const location = useLocation();
 
   // Track visitor info on initial load
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0]
-    const visited = localStorage.getItem("visited_date")
+    const today = new Date().toISOString().split("T")[0];
+    const visited = localStorage.getItem("visited_date");
 
     if (visited !== today) {
-      visitorService.trackVisit().catch(() => {})
-      localStorage.setItem("visited_date", today)
+      visitorService.trackVisit().catch(() => {});
+      localStorage.setItem("visited_date", today);
     }
-  }, [])
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-
-        {/* PUBLIC ROUTE */}
-        <Route path="/admin/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
+        {/* PUBLIC ROUTE
+        <Route path="/admin/login" element={<LoginPage />} /> */}
 
         {/* PROTECTED ROUTES */}
         <Route
@@ -43,13 +43,22 @@ export default function App() {
           }
         >
           <Route path="/admin" element={<DashboardPage />} />
-          <Route path="/admin/history/summarize" element={<SummaryHistoryPage />} />
-          <Route path="/admin/history/spell-check" element={<SpellCheckHistoryPage />} />
-          <Route path="/admin/models" element={<ModelsPage />} />
+          <Route
+            path="/admin/history/summarize"
+            element={<SummaryHistoryPage />}
+          />
+          <Route
+            path="/admin/history/spell-check"
+            element={<SpellCheckHistoryPage />}
+          />
+          {/* <Route path="/admin/models" element={<ModelsPage />} /> */}
+          <Route
+            path="/admin/models"
+            element={<EntityPage entity="models" />}
+          />
           <Route path="/admin/users" element={<UsersPage />} />
         </Route>
-
       </Routes>
     </AnimatePresence>
-  )
+  );
 }
