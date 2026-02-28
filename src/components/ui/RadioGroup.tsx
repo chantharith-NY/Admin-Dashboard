@@ -7,12 +7,14 @@ interface RadioGroupProps {
   value: any
   options: Option[]
   onChange: (value: any) => void
+  required?: boolean
 }
 
 export default function RadioGroup({
   value,
   options,
-  onChange
+  onChange,
+  required
 }: RadioGroupProps) {
   return (
     <div className="space-y-1">
@@ -22,6 +24,7 @@ export default function RadioGroup({
             type="radio"
             checked={value === option.value}
             onChange={() => onChange(option.value)}
+            required={required}
           />
           {option.label}
         </label>

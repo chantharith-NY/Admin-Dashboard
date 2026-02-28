@@ -2,12 +2,14 @@ interface InputProps {
   value: string
   placeholder?: string
   onChange: (value: string) => void
+  required?: boolean
 }
 
 export default function Input({
   value,
   placeholder,
-  onChange
+  onChange,
+  required
 }: InputProps) {
   return (
     <input
@@ -15,6 +17,7 @@ export default function Input({
       placeholder={placeholder}
       value={value}
       onChange={e => onChange(e.target.value)}
+      required={required}
     />
   )
 }
