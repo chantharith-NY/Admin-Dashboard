@@ -6,7 +6,7 @@ export interface EntitySchema {
     create: string
     update: string
     delete: string
-    toggle?: string
+    patch?: string
   }
 
   table: {

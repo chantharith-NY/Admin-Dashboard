@@ -56,7 +56,11 @@ export default function App() {
             path="/admin/models"
             element={<EntityPage entity="models" />}
           />
-          <Route path="/admin/users" element={<UsersPage />} />
+          {/* <Route path="/admin/users" element={<UsersPage />} /> */}
+          <Route
+            path="/admin/users"
+            element={<EntityPage entity="users" />}
+          />
         </Route>
       </Routes>
     </AnimatePresence>

@@ -45,12 +45,16 @@ export default function DynamicTable({
               const newValue = e.target.checked
               onStatusChange?.(row, newValue)
 
+              if (!schema.api?.patch) return
+              console.log("Patching status to:", newValue)
+              const patchUrl = schema.api.patch.replace("{id}", row.id)
+
               try {
                 await entityService.patch(
-                  `/models/${row.id}/status`,
-                  { is_active: newValue }
+                  patchUrl,
+                  { [col.key]: newValue } // 🔥 dynamic field
                 )
-                onRefresh() // reload table properly
+                onRefresh()
               } catch (error) {
                 console.error("Failed to update status:", error)
               }

@@ -55,16 +55,19 @@ export default function EntityPage({ entity }: Props) {
     setDeleteItem(null);
   };
 
-  const handleStatus = async (row: any, newValue: boolean) => {
-    try {
-      await entityService.patch(
-        `/models/${row.id}/status`,
-        { is_active: newValue }
-      );
+  const handleStatus = async (
+    row: any,
+    newValue: boolean
+  ) => {
 
-      showMessage(
-        "success",
-        newValue ? "បានបើកដំណើរការដោយជោគជ័យ" : "បានបិទដំណើរការដោយជោគជ័យ"
+    if (!schema?.api?.patch) return;
+
+    try {
+      const patchUrl = schema.api.patch.replace("{id}", row.id);
+
+      await entityService.patch(
+        patchUrl,
+        { is_active: newValue }
       );
 
       load();
