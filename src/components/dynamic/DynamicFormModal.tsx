@@ -1,59 +1,95 @@
-import { useState } from "react"
-import { entityService } from "../../services/entity.service"
-import Select from "../common/Select"
-import Input from "../ui/Input"
-import Textarea from "../ui/Textarea"
-import Button from "../ui/Button"
-import RadioGroup from "../ui/RadioGroup"
-import type { EntitySchema } from "../../types/entity"
+import { useState } from "react";
+
+import { entityService } from "../../services/entity.service";
+import type { EntitySchema } from "../../types/entity";
+
+import Select from "../ui/Select";
+import Input from "../ui/Input";
+import Textarea from "../ui/Textarea";
+import Button from "../ui/Button";
+import RadioGroup from "../ui/RadioGroup";
+import PasswordInput from "../ui/PasswordInput";
+import EmailInput from "../ui/EmailInput";
+import FileInput from "../ui/FileInput";
 
 interface Props {
-  schema: EntitySchema
-  entity: string
-  data: any
-  onClose: () => void
-  onSuccess: (isEdit: boolean) => void
+  schema: EntitySchema;
+  entity: string;
+  data: any;
+  onClose: () => void;
+  onSuccess: (isEdit: boolean) => void;
 }
 
 export default function DynamicFormModal({
   schema,
   data,
   onClose,
-  onSuccess
+  onSuccess,
 }: Props) {
 
-  const [form, setForm] = useState<any>(data || {})
+  const [form, setForm] = useState<any>(data || {});
 
   const handleSubmit = async () => {
     try {
       if (form.id) {
-        const endpoint = schema.api.update.replace("{id}", form.id)
-        await entityService.update(endpoint, form)
-        onSuccess(true) // edit
+        if (!schema.api.update) return;
+
+        const endpoint = schema.api.update.replace("{id}", form.id);
+        await entityService.update(endpoint, form);
+
+        onSuccess(true);
       } else {
-        await entityService.create(schema.api.create, form)
-        onSuccess(false) // create
+        if (!schema.api.create) return;
+
+        await entityService.create(schema.api.create, form);
+
+        onSuccess(false);
       }
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
-  }
+  };
 
   const isVisible = (field: any) => {
-    if (!field.visible_if) return true
-    return form[field.visible_if.field] === field.visible_if.equals
-  }
+    if (!field.visible_if) return true;
+    return form[field.visible_if.field] === field.visible_if.equals;
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
       <div className="bg-white p-6 rounded-xl w-full max-w-lg space-y-4">
-
         <p className="text-xl font-moul">{schema.page_title}</p>
 
-        {schema.form.fields.map((field: any) => {
-          if (!isVisible(field)) return null
+        {schema.form?.fields?.map((field: any) => {
+          if (!isVisible(field)) return null;
 
           switch (field.type) {
+            case "email":
+              return (
+                <EmailInput
+                  key={field.name}
+                  placeholder={field.label}
+                  value={form[field.name]}
+                  required={field.required}
+                  onChange={(value) =>
+                    setForm({ ...form, [field.name]: value })
+                  }
+                />
+              );
+
+            case "password":
+              return (
+                <PasswordInput
+                  key={field.name}
+                  placeholder={field.label}
+                  value={form[field.name]}
+                  required={field.required}
+                  minLength={field.min_length}
+                  onChange={(value) =>
+                    setForm({ ...form, [field.name]: value })
+                  }
+                />
+              );
 
             case "text":
               return (
@@ -61,11 +97,12 @@ export default function DynamicFormModal({
                   key={field.name}
                   placeholder={field.label}
                   value={form[field.name] || ""}
+                  required={field.required}
                   onChange={(value) =>
                     setForm({ ...form, [field.name]: value })
                   }
                 />
-              )
+              );
 
             case "textarea":
               return (
@@ -77,27 +114,26 @@ export default function DynamicFormModal({
                     setForm({ ...form, [field.name]: value })
                   }
                 />
-              )
+              );
 
             case "select":
               return (
                 <Select
                   key={field.name}
                   value={
-                    field.options.find((o: any) =>
-                      o.value === form[field.name]
-                    )?.label
+                    field.options.find((o: any) => o.value === form[field.name])
+                      ?.label
                   }
                   options={field.options.map((o: any) => o.label)}
                   onChange={(label: string) => {
                     const selected = field.options.find(
-                      (o: any) => o.label === label
-                    )
-                    if (!selected) return
-                    setForm({ ...form, [field.name]: selected.value })
+                      (o: any) => o.label === label,
+                    );
+                    if (!selected) return;
+                    setForm({ ...form, [field.name]: selected.value });
                   }}
                 />
-              )
+              );
 
             case "radio":
               return (
@@ -109,10 +145,42 @@ export default function DynamicFormModal({
                     setForm({ ...form, [field.name]: value })
                   }
                 />
-              )
+              );
+
+            case "file":
+              return (
+                <FileInput
+                  key={field.name}
+                  placeholder={field.label}
+                  onChange={(files) => {
+                    console.log("Selected file:", files?.[0]);
+                    console.log("Is File?", files?.[0] instanceof File);
+
+                    setForm((prev: Record<string, any>) => ({
+                      ...prev,
+                      [field.name]: files?.[0] ?? null,
+                    }));
+                  }}
+                />
+              );
+
+            case "switch":
+              return (
+                <input
+                  key={field.name}
+                  type="checkbox"
+                  checked={Boolean(form[field.name] ?? field.default ?? false)}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      [field.name]: e.target.checked,
+                    })
+                  }
+                />
+              );
 
             default:
-              return null
+              return null;
           }
         })}
 
@@ -121,12 +189,9 @@ export default function DynamicFormModal({
             បោះបង់
           </Button>
 
-          <Button onClick={handleSubmit}>
-            រក្សាទុក
-          </Button>
+          <Button onClick={handleSubmit}>រក្សាទុក</Button>
         </div>
-
       </div>
     </div>
-  )
+  );
 }

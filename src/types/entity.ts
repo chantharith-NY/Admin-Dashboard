@@ -3,17 +3,18 @@ export interface EntitySchema {
 
   api: {
     list: string
-    create: string
-    update: string
-    delete: string
+    create?: string
+    update?: string
+    delete?: string
     patch?: string
+    export?: string
   }
 
   table: {
     columns: TableColumnSchema[]
   }
 
-  form: {
+  form?: {
     fields: FormFieldSchema[]
   }
 
@@ -23,23 +24,49 @@ export interface EntitySchema {
     delete?: boolean
     toggle?: boolean
   }
+
+  extra_actions?: ExtraActionSchema[]
+}
+
+export interface ExtraActionSchema {
+  label: string
+  format?: string
+  type?: "export" | "download" | "custom"
 }
 
 export interface TableColumnSchema {
   key: string
   label: string
-  type?: "text" | "boolean"
+  type?: "text" | "boolean" | "number" | "datetime"
   sortable?: boolean
+  truncate?: number
 }
 
 export interface FormFieldSchema {
   name: string
   label: string
-  type: "text" | "textarea" | "select" | "radio" | "file"
+  type:
+    | "text"
+    | "email"
+    | "password"
+    | "textarea"
+    | "select"
+    | "radio"
+    | "file"
+    | "switch"
+
   required?: boolean
+  min_length?: number
+  max_length?: number
+  default?: any
+
   options?: { label: string; value: string }[]
+
   visible_if?: {
     field: string
     equals: any
   }
+
+  hide_on?: ("edit" | "create")[]
+  required_on?: "create" | "edit"
 }

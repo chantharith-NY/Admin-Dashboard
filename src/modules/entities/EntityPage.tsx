@@ -5,6 +5,7 @@ import DynamicFormModal from "../../components/dynamic/DynamicFormModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import { useMessage } from "../../components/ui/MessageProvider";
 import type { EntitySchema } from "../../types/entity";
+import DropdownButton from "../../components/ui/DropdownButton";
 
 interface Props {
   entity: string;
@@ -31,8 +32,8 @@ export default function EntityPage({ entity }: Props) {
       const schemaRes = await entityService.getSchema(entity);
       setSchema(schemaRes);
 
-      const list = await entityService.getList(schemaRes.api.list);
-      setData(list);
+      const result = await entityService.getList(schemaRes.api.list);
+      setData(result.data);
     } catch (e) {
       showMessage("error", "Cannot load data");
     } finally {
@@ -44,11 +45,13 @@ export default function EntityPage({ entity }: Props) {
     if (!deleteItem || !schema) return;
 
     try {
+      if (!deleteItem || !schema?.api?.delete) return;
+
       const endpoint = schema.api.delete.replace("{id}", deleteItem.id);
       await entityService.delete(endpoint);
       showMessage("success", "Deleted successfully");
       load();
-    } catch {
+    } catch (e) {
       showMessage("error", "Delete failed");
     }
 
@@ -61,6 +64,7 @@ export default function EntityPage({ entity }: Props) {
   ) => {
 
     if (!schema?.api?.patch) return;
+    
 
     try {
       const patchUrl = schema.api.patch.replace("{id}", row.id);
@@ -78,20 +82,46 @@ export default function EntityPage({ entity }: Props) {
 
   if (!schema) return null;
 
+  const actions = schema.extra_actions ?? []
+
   return (
     <div className="space-y-4 sm:space-y-5">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <p className="text-2xl font-moul">{schema.page_title}</p>
 
-        {schema.permissions?.create && (
-          <button
-            onClick={() => setEditing({})}
-            className="bg-[#8BAD13] text-white px-4 py-2 rounded-lg"
-          >
-            បន្ថែមថ្មី
-          </button>
-        )}
+        <div className="flex gap-2">
+
+          {/* Create Button */}
+          {schema.permissions?.create && (
+            <button
+              onClick={() => setEditing({})}
+              className="bg-[#8BAD13] text-white px-4 py-2 rounded-lg"
+            >
+              បន្ថែមថ្មី
+            </button>
+          )}
+
+          {/* Export Buttons */}
+          {!schema.permissions?.create && actions.length > 0 && (
+            <DropdownButton
+              label="ទាញយក"
+              options={actions.map(action => ({
+                label: action.label,
+                onClick: async () => {
+                  if (!schema.api?.export || !action.format) return;
+
+                  try {
+                    await entityService.export(schema.api.export, action.format);
+                    showMessage("success", "Export successful");
+                  } catch (e) {
+                    showMessage("error", "Export failed");
+                  }
+                }
+              }))}
+            />
+          )}
+        </div>
       </div>
 
       {/* Table */}
