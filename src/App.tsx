@@ -43,17 +43,13 @@ export default function App() {
           }
         >
           <Route path="/admin" element={<DashboardPage />} />
-          {/* <Route
-            path="/admin/history/summarize"
-            element={<SummaryHistoryPage />}
-          /> */}
           <Route
             path="/admin/history/summarize"
             element={<EntityPage entity="summarize" />}
           />
           <Route
             path="/admin/history/spell-check"
-            element={<SpellCheckHistoryPage />}
+            element={<EntityPage entity="spell-check" />}
           />
           {/* <Route path="/admin/models" element={<ModelsPage />} /> */}
           <Route

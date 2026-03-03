@@ -5,6 +5,7 @@ export interface TableColumn<T> {
   title: string;
   render?: (row: T, index: number) => ReactNode;
   className?: string;
+  width?: string;
 }
 
 interface DataTableProps<T> {
@@ -19,78 +20,81 @@ export default function DataTable<T>({
   emptyText = "គ្មានទិន្នន័យ",
 }: DataTableProps<T>) {
 
-  console.log("DataTable render", { data, columns });
+  // console.log("DataTable render", { data, columns });
   return (
-    <div className="bg-white rounded-xl shadow overflow-x-auto">
+    <div className="bg-white rounded-xl shadow">
 
-      <table className="w-full border-collapse min-w-160">
-        <thead>
-          <tr
-            className="
-            bg-gray-100 text-left font-moul font-semibold
-            text-xs sm:text-sm lg:text-base
-          "
-          >
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={`
-                  px-3 py-2
-                  sm:px-4 sm:py-2.5
-                  lg:px-4 lg:py-3
-                  border-b
-                  ${col.className ?? ""}
-                `}
-              >
-                {col.title}
-              </th>
-            ))}
-          </tr>
-        </thead>
+      {/* Mobile Scroll Wrapper */}
+      <div className="w-full overflow-x-auto">
+        <table className="min-w-full border-collapse">
 
-        <tbody>
-          {data.length === 0 ? (
-            <tr className="font-battambang text-sm sm:text-base">
-              <td
-                colSpan={columns.length}
-                className="
-                  px-4 py-6
-                  text-center text-gray-400
-                "
-              >
-                {emptyText}
-              </td>
+          {/* Header - Hide on very small screens */}
+          <thead className="hidden sm:table-header-group">
+            <tr className="bg-gray-100 text-left font-moul text-sm lg:text-base">
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  className="px-4 py-3 border-b whitespace-nowrap"
+                >
+                  {col.title}
+                </th>
+              ))}
             </tr>
-          ) : (
-            data.map((row, index) => (
-              <tr
-                key={index}
-                className="
-                  border-b font-battambang
-                  text-sm sm:text-base
-                  hover:bg-gray-50 transition
-                "
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={`
-                      px-3 py-2
-                      sm:px-4 sm:py-2.5
-                      lg:px-4 lg:py-3
-                      ${col.className ?? ""}
-                    `}
-                  >
-                    {col.render
-                      ? col.render(row, index)
-                      : (row as any)[col.key]}
-                  </td>
-                ))}
+          </thead>
+
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-6 text-center text-gray-400"
+                >
+                  {emptyText}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              data.map((row, index) => (
+                <tr
+                  key={index}
+                  className="
+                    border-b
+                    font-battambang
+                    text-sm sm:text-base
+                    hover:bg-gray-50
+                    block sm:table-row
+                    mb-4 sm:mb-0
+                  "
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className="
+                        px-4 py-2
+                        align-top
+                        block sm:table-cell
+                      "
+                    >
+                      {/* Mobile Label */}
+                      <div className="sm:hidden text-xs font-semibold text-gray-500 mb-1">
+                        {col.title}
+                      </div>
+
+                      <div className="break-words">
+                        {col.render
+                          ? col.render(row, index)
+                          : (row as any)[col.key]}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="text-sm text-gray-500 px-4 py-2">
+        Showing {data.length} records
+      </div>
     </div>
   );
 }

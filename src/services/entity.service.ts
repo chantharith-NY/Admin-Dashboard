@@ -32,6 +32,7 @@ export const entityService = {
 
   async getSchema(entity: string): Promise<EntitySchema> {
     const res = await api.get(`/entities/${entity}/schema`)
+    console.log("Fetched schema for entity:", entity, res.data.data)
     return res.data.data
   },
 

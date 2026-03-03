@@ -62,7 +62,11 @@ export default function DynamicTable({
           />
         )
       }
-        return row[col.key]
+        const getValue = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, part) => acc?.[part], obj)
+      }
+
+      return getValue(row, col.key)
       }
     })),
 
@@ -71,7 +75,7 @@ export default function DynamicTable({
       key: "actions",
       title: "មុខងារ",
       render: (row: any) => (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           {schema.permissions?.update && (
             <Button
               onClick={() => onEdit(row)}
@@ -100,5 +104,6 @@ export default function DynamicTable({
       data={data || []}
       emptyText={loading ? "កំពុងទាញយក..." : "គ្មានទិន្នន័យ"}
     />
+    
   )
 }
