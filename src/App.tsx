@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { visitorService } from "./services/visitor.service";
@@ -8,9 +8,9 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import LoginPage from "./modules/auth/LoginPage";
 import DashboardPage from "./modules/dashboard/DashboardPage";
-import UsersPage from "./modules/users/UsersPage";
-import SummaryHistoryPage from "./modules/history/SummaryHistoryTable";
-import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable";
+// import UsersPage from "./modules/users/UsersPage";
+// import SummaryHistoryPage from "./modules/history/SummaryHistoryTable";
+// import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable";
 import EntityPage from "./modules/entities/EntityPage";
 
 export default function App() {
@@ -22,7 +22,7 @@ export default function App() {
     const visited = localStorage.getItem("visited_date");
 
     if (visited !== today) {
-      visitorService.trackVisit().catch(() => {});
+      visitorService.trackVisit().catch(() => { });
       localStorage.setItem("visited_date", today);
     }
   }, []);
@@ -30,7 +30,16 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<LoginPage />} />
+        {/* Redirect root */}
+        <Route
+          path="/"
+          element={
+            localStorage.getItem("admin_token")
+              ? <Navigate to="/admin" replace />
+              : <Navigate to="/admin/login" replace />
+          }
+        />
+        <Route path="/admin/login" element={<LoginPage />} />
         {/* PUBLIC ROUTE
         <Route path="/admin/login" element={<LoginPage />} /> */}
 

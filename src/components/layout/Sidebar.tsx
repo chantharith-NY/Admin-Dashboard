@@ -1,6 +1,6 @@
 // src/components/layout/Sidebar.tsx
 import { X } from "lucide-react";
-import { Link, useLocation} from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   open: boolean;
@@ -87,7 +87,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <button
               onClick={() => {
                 localStorage.removeItem("admin_token");
-                window.location.href = "/";
+                window.location.href = "/admin/login";
               }}
               className="
                 w-full text-left px-3 py-2 rounded-md
@@ -95,7 +95,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 transition font-battambang
               "
             >
-              
+
               ចាកចេញ
             </button>
           </Section>
@@ -151,10 +151,9 @@ function NavItem({
       onClick={onClick}
       className={`
         block px-3 py-2 rounded-md text-sm font-battambang transition
-        ${
-          isActive
-            ? "bg-white/20 text-white font-medium"
-            : "text-white/80 hover:bg-white/10 hover:text-white"
+        ${isActive
+          ? "bg-white/20 text-white font-medium"
+          : "text-white/80 hover:bg-white/10 hover:text-white"
         }
       `}
     >

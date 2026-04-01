@@ -13,6 +13,37 @@ interface Props {
   onStatusChange: (row: any, newValue: boolean) => void
 }
 
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return "-"
+
+  return new Date(dateString).toLocaleString("en-GB", {
+    timeZone: "Asia/Phnom_Penh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  })
+}
+
+const formatDuration = (ms: number) => {
+  if (!ms) return "0s"
+
+  const totalSeconds = Math.floor(ms / 1000)
+
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = totalSeconds % 60
+
+  return [
+    h ? `${h}h` : null,
+    m ? `${m}m` : null,
+    s ? `${s}s` : "0s"
+  ].filter(Boolean).join(" ")
+}
+
 export default function DynamicTable({
   schema,
   onRefresh,
@@ -23,7 +54,6 @@ export default function DynamicTable({
   onStatusChange
 }: Props) {
 
-
   const columns = [
 
     {
@@ -33,40 +63,51 @@ export default function DynamicTable({
     },
 
     ...schema.table.columns.map((col: any) => ({
+
       key: col.key,
       title: col.label,
       render: (row: any) => {
-      if (col.type === "boolean") {
-        return (
-          <input
-            type="checkbox"
-            checked={row[col.key]}
-            onChange={async (e) => {
-              const newValue = e.target.checked
-              onStatusChange?.(row, newValue)
+        if (col.type === "boolean") {
+          return (
+            <input
+              type="checkbox"
+              checked={row[col.key]}
+              onChange={async (e) => {
+                const newValue = e.target.checked
+                onStatusChange?.(row, newValue)
 
-              if (!schema.api?.patch) return
-              console.log("Patching status to:", newValue)
-              const patchUrl = schema.api.patch.replace("{id}", row.id)
+                if (!schema.api?.patch) return
+                console.log("Patching status to:", newValue)
+                const patchUrl = schema.api.patch.replace("{id}", row.id)
 
-              try {
-                await entityService.patch(
-                  patchUrl,
-                  { [col.key]: newValue } // 🔥 dynamic field
-                )
-                onRefresh()
-              } catch (error) {
-                console.error("Failed to update status:", error)
-              }
-            }}
-          />
-        )
-      }
+                try {
+                  await entityService.patch(
+                    patchUrl,
+                    { [col.key]: newValue } // 🔥 dynamic field
+                  )
+                  onRefresh()
+                } catch (error) {
+                  console.error("Failed to update status:", error)
+                }
+              }}
+            />
+          )
+        }
         const getValue = (obj: any, path: string) => {
-        return path.split('.').reduce((acc, part) => acc?.[part], obj)
-      }
+          return path.split('.').reduce((acc, part) => acc?.[part], obj)
+        }
 
-      return getValue(row, col.key)
+        const value = getValue(row, col.key)
+
+        if (col.type === "duration") {
+          return formatDuration(value)
+        }
+
+        if (col.type === "datetime") {
+          return formatDateTime(value)
+        }
+
+        return value
       }
     })),
 
@@ -104,6 +145,6 @@ export default function DynamicTable({
       data={data || []}
       emptyText={loading ? "កំពុងទាញយក..." : "គ្មានទិន្នន័យ"}
     />
-    
+
   )
 }
