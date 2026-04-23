@@ -6,6 +6,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import { useMessage } from "../../components/ui/MessageProvider";
 import type { EntitySchema } from "../../types/entity";
 import DropdownButton from "../../components/ui/DropdownButton";
+import { usePermission } from "../../hooks/usePermission";
 
 interface Props {
   entity: string;
@@ -19,6 +20,7 @@ export default function EntityPage({ entity }: Props) {
   const [deleteItem, setDeleteItem] = useState<any>(null);
 
   const { showMessage } = useMessage();
+  const { hasPermission } = usePermission();
 
   useEffect(() => {
     showMessage("info", "កំពុងទាញយកទិន្នន័យ...");
@@ -58,21 +60,13 @@ export default function EntityPage({ entity }: Props) {
     setDeleteItem(null);
   };
 
-  const handleStatus = async (
-    row: any,
-    newValue: boolean
-  ) => {
-
+  const handleStatus = async (row: any, newValue: boolean) => {
     if (!schema?.api?.patch) return;
-    
 
     try {
       const patchUrl = schema.api.patch.replace("{id}", row.id);
 
-      await entityService.patch(
-        patchUrl,
-        { is_active: newValue }
-      );
+      await entityService.patch(patchUrl, { is_active: newValue });
 
       load();
     } catch (e) {
@@ -82,7 +76,7 @@ export default function EntityPage({ entity }: Props) {
 
   if (!schema) return null;
 
-  const actions = schema.extra_actions ?? []
+  const actions = schema.extra_actions ?? [];
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -91,33 +85,36 @@ export default function EntityPage({ entity }: Props) {
         <p className="text-2xl font-moul">{schema.page_title}</p>
 
         <div className="flex gap-2">
-
           {/* Create Button */}
-          {schema.permissions?.create && (
-            <button
-              onClick={() => setEditing({})}
-              className="bg-[#8BAD13] text-white px-4 py-2 rounded-lg"
-            >
-              បន្ថែមថ្មី
-            </button>
-          )}
+          {schema.permissions?.create &&
+            hasPermission(schema.permissions.create) && (
+              <button
+                onClick={() => setEditing({})}
+                className="bg-[#8BAD13] text-white px-4 py-2 rounded-lg"
+              >
+                បន្ថែមថ្មី
+              </button>
+            )}
 
           {/* Export Buttons */}
           {!schema.permissions?.create && actions.length > 0 && (
             <DropdownButton
               label="ទាញយក"
-              options={actions.map(action => ({
+              options={actions.map((action) => ({
                 label: action.label,
                 onClick: async () => {
                   if (!schema.api?.export || !action.format) return;
 
                   try {
-                    await entityService.export(schema.api.export, action.format);
+                    await entityService.export(
+                      schema.api.export,
+                      action.format,
+                    );
                     showMessage("success", "Export successful");
                   } catch (e) {
                     showMessage("error", "Export failed");
                   }
-                }
+                },
               }))}
             />
           )}
@@ -143,16 +140,14 @@ export default function EntityPage({ entity }: Props) {
           data={editing}
           onClose={() => setEditing(null)}
           onSuccess={(isEdit) => {
-            setEditing(null)
+            setEditing(null);
 
             showMessage(
               "success",
-              isEdit
-                ? "បានកែសម្រួលដោយជោគជ័យ"
-                : "បានបង្កើតដោយជោគជ័យ"
-            )
+              isEdit ? "បានកែសម្រួលដោយជោគជ័យ" : "បានបង្កើតដោយជោគជ័យ",
+            );
 
-            load()
+            load();
           }}
         />
       )}

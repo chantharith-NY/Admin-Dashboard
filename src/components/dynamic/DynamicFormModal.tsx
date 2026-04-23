@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { entityService } from "../../services/entity.service";
 import type { EntitySchema } from "../../types/entity";
+import { usePermission } from "../../hooks/usePermission";
+import api from "../../services/api";
 
 import Select from "../ui/Select";
 import Input from "../ui/Input";
@@ -26,6 +28,12 @@ export default function DynamicFormModal({
   onClose,
   onSuccess,
 }: Props) {
+  const [dynamicOptions, setDynamicOptions] = useState<Record<string, any[]>>(
+    {},
+  );
+
+  const { hasPermission } = usePermission();
+
   const getFileName = (path?: string) => {
     if (!path) return null;
     return path.split("/").pop();
@@ -53,44 +61,48 @@ export default function DynamicFormModal({
       if (form.id) {
         if (!schema.api.update) return;
 
-        // const endpoint = schema.api.update.replace("{id}", form.id);
+        const endpoint = schema.api.update.replace("{id}", form.id);
 
-        const formData = new FormData();
+        // 🔥 check if this entity uses file/sources
+        const isModel = schema.api.update.includes("models");
 
-        // 🔥 Clean sources BEFORE sending
-        const cleanSources = (form.sources || []).map((s: any) => ({
-          source_type: s.source_type,
-          is_active: Boolean(s.is_active),
-          endpoint: s.source_type === "api" ? s.endpoint || null : null,
-        }));
+        if (isModel) {
+          const formData = new FormData();
 
-        // ✅ IMPORTANT: stringify
-        formData.append("sources", JSON.stringify(cleanSources));
+          const cleanSources = (form.sources || []).map((s: any) => ({
+            source_type: s.source_type,
+            is_active: Boolean(s.is_active),
+            endpoint: s.source_type === "api" ? s.endpoint || null : null,
+          }));
 
-        // other fields
-        formData.append("model_name", form.model_name);
-        formData.append("model_type", form.model_type);
+          if (cleanSources.length > 0) {
+            formData.append("sources", JSON.stringify(cleanSources));
+          }
 
-        if (form.description) {
-          formData.append("description", form.description);
+          formData.append("model_name", form.model_name);
+          formData.append("model_type", form.model_type);
+
+          if (form.description) {
+            formData.append("description", form.description);
+          }
+
+          if (form.model_file) {
+            formData.append("model_file", form.model_file);
+          }
+
+          formData.append("_method", "PUT");
+
+          await entityService.update(endpoint, formData);
+        } else {
+          // ✅ NORMAL ENTITY (USER, etc.)
+          await entityService.update(endpoint, form);
         }
-
-        // file
-        if (form.model_file) {
-          formData.append("model_file", form.model_file);
-        }
-
-        // Laravel PUT support
-        formData.append("_method", "PUT");
-
-        await entityService.create(`/models/${form.id}`, formData);
 
         onSuccess(true);
       } else {
         if (!schema.api.create) return;
 
         await entityService.create(schema.api.create, form);
-
         onSuccess(false);
       }
     } catch (e) {
@@ -102,6 +114,28 @@ export default function DynamicFormModal({
     if (!field.visible_if) return true;
     return form[field.visible_if.field] === field.visible_if.equals;
   };
+
+  useEffect(() => {
+    schema.form?.fields?.forEach(async (field: any) => {
+      if (field.type === "select" && field.source) {
+        try {
+          const res = await api.get(field.source);
+
+          const options = res.data.data.map((item: any) => ({
+            label: item.name,
+            value: item.id,
+          }));
+
+          setDynamicOptions((prev) => ({
+            ...prev,
+            [field.name]: options,
+          }));
+        } catch (err) {
+          console.error("Failed to load options:", err);
+        }
+      }
+    });
+  }, [schema]);
 
   // const handleToggleSource = async (source: any) => {
   //   try {
@@ -128,6 +162,10 @@ export default function DynamicFormModal({
 
         {schema.form?.fields?.map((field: any) => {
           if (!isVisible(field)) return null;
+
+          if (field.permissions && !hasPermission(field.permissions)) {
+            return null;
+          }
 
           switch (field.type) {
             case "email":
@@ -183,18 +221,16 @@ export default function DynamicFormModal({
               );
 
             case "select":
+              const options = dynamicOptions[field.name] || field.options || [];
               return (
                 <Select
                   key={field.name}
                   value={
-                    field.options.find((o: any) => o.value === form[field.name])
-                      ?.label
+                    options.find((o) => o.value === form[field.name])?.label
                   }
-                  options={field.options.map((o: any) => o.label)}
+                  options={options.map((o) => o.label)}
                   onChange={(label: string) => {
-                    const selected = field.options.find(
-                      (o: any) => o.label === label,
-                    );
+                    const selected = options.find((o) => o.label === label);
                     if (!selected) return;
                     setForm({ ...form, [field.name]: selected.value });
                   }}
@@ -252,10 +288,10 @@ export default function DynamicFormModal({
               const activeTab = activeSourceTab;
               const setActiveTab = setActiveSourceTab;
 
-              const getFileName = (path?: string) => {
-                if (!path) return null;
-                return path.split("/").pop();
-              };
+              // const getFileName = (path?: string) => {
+              //   if (!path) return null;
+              //   return path.split("/").pop();
+              // };
 
               // ✅ Always return FULL structure
               const getSource = (type: string) => {

@@ -3,6 +3,8 @@ import type { EntitySchema } from "../../types/entity";
 import { entityService } from "../../services/entity.service";
 import Button from "../ui/Button";
 import { useMessage } from "../ui/MessageProvider";
+import { usePermission } from "../../hooks/usePermission";
+
 interface Props {
   schema: EntitySchema;
   data: any[];
@@ -51,7 +53,9 @@ export default function DynamicTable({
   onDelete,
   onStatusChange,
 }: Props) {
-  const { showMessage, showConfirm } = useMessage(); // 🔥 ADD THIS
+  const { showMessage, showConfirm } = useMessage();
+
+  const { hasPermission } = usePermission();
 
   // 🔥 Toggle source API
   const toggleSource = async (source: any) => {
@@ -173,17 +177,50 @@ export default function DynamicTable({
       title: "មុខងារ",
       render: (row: any) => (
         <div className="flex flex-col sm:flex-row gap-2">
-          {schema.permissions?.update && (
-            <Button onClick={() => onEdit(row)} variant="edit">
-              កែប្រែ
-            </Button>
-          )}
+          {schema.table.actions?.map((action, index) => {
+            if (action.permissions && !hasPermission(action.permissions)) {
+              return null;
+            }
 
-          {schema.permissions?.delete && (
-            <Button onClick={() => onDelete(row)} variant="danger">
-              លុប
-            </Button>
-          )}
+            switch (action.type) {
+              case "edit":
+                return (
+                  <Button
+                    key={index}
+                    onClick={() => onEdit(row)}
+                    variant="edit"
+                  >
+                    កែប្រែ
+                  </Button>
+                );
+              case "delete":
+                return (
+                  <Button
+                    key={index}
+                    onClick={() => onDelete(row)}
+                    variant="danger"
+                  >
+                    លុប
+                  </Button>
+                );
+              default:
+                return null;
+            }
+          })}
+
+          {/* {schema.permissions?.update &&
+            hasPermission(schema.permissions.update) && (
+              <Button onClick={() => onEdit(row)} variant="edit">
+                កែប្រែ
+              </Button>
+            )}
+
+          {schema.permissions?.delete &&
+            hasPermission(schema.permissions.delete) && (
+              <Button onClick={() => onDelete(row)} variant="danger">
+                លុប
+              </Button>
+            )} */}
         </div>
       ),
     },
