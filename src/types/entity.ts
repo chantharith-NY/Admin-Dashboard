@@ -12,6 +12,7 @@ export interface EntitySchema {
 
   table: {
     columns: TableColumnSchema[]
+    actions?: TableActionSchema[]
   }
 
   form?: {
@@ -19,10 +20,10 @@ export interface EntitySchema {
   }
 
   permissions?: {
-    create?: boolean
-    update?: boolean
-    delete?: boolean
-    toggle?: boolean
+    create?: string
+    update?: string
+    delete?: string
+    toggle?: string
   }
 
   extra_actions?: ExtraActionSchema[]
@@ -40,6 +41,12 @@ export interface TableColumnSchema {
   type?: "text" | "boolean" | "number" | "datetime"
   sortable?: boolean
   truncate?: number
+}
+
+export interface TableActionSchema {
+  type: "edit" | "delete" | "custom" | "toggle"
+  label: string
+  permissions?: string
 }
 
 export interface FormFieldSchema {
