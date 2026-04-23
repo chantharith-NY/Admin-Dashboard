@@ -1,16 +1,15 @@
-import { Menu } from "lucide-react"
-import { Link, NavLink, useLocation } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { Menu } from "lucide-react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 interface HeaderProps {
-  onMenuClick: () => void
+  onMenuClick: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full">
       <div className="bg-[#8BAD13] flex items-center justify-between px-4 sm:px-6 h-20 sm:h-20">
-
         {/* Logo + Title */}
         <Link to="/admin" className="flex items-center gap-3 min-w-0">
           <img
@@ -36,10 +35,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <HistoryDropdown />
           <HeaderLink to="/admin/models" label="ម៉ូឌែល" />
           <HeaderLink to="/admin/users" label="អ្នកប្រើប្រាស់" />
+          <HeaderLink to="/admin/roles" label="តួនាទី" />
           <button
             onClick={() => {
-              localStorage.removeItem("admin_token")
-              window.location.href = "/admin/login"
+              localStorage.removeItem("admin_token");
+              window.location.href = "/admin/login";
             }}
             className="text-base lg:text-lg font-battambang font-medium transition text-white/80 hover:text-white"
           >
@@ -57,7 +57,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
       </div>
     </header>
-  )
+  );
 }
 
 /* ---------------- Header Link ---------------- */
@@ -67,9 +67,9 @@ function HeaderLink({
   label,
   exact = false,
 }: {
-  to: string
-  label: string
-  exact?: boolean
+  to: string;
+  label: string;
+  exact?: boolean;
 }) {
   return (
     <NavLink
@@ -88,39 +88,39 @@ function HeaderLink({
     >
       {label}
     </NavLink>
-  )
+  );
 }
 
 function HistoryDropdown() {
-  const [open, setOpen] = useState(false)
-  const location = useLocation()
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
 
-  const isActive = location.pathname.startsWith("/admin/history")
+  const isActive = location.pathname.startsWith("/admin/history");
 
   // Close dropdown on route change
   useEffect(() => {
-    setOpen(false)
-  }, [location.pathname])
+    setOpen(false);
+  }, [location.pathname]);
 
   // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
+      const target = e.target as HTMLElement;
       if (!target.closest("#history-dropdown")) {
-        setOpen(false)
+        setOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div id="history-dropdown" className="relative">
       {/* Trigger */}
       <a
         type="button"
-        onClick={() => setOpen(prev => !prev)}
+        onClick={() => setOpen((prev) => !prev)}
         className={`
           text-base lg:text-lg font-battambang font-medium transition cursor-pointer
           flex items-center gap-1
@@ -158,10 +158,7 @@ function HistoryDropdown() {
             animate-fade-in
           "
         >
-          <DropdownLink
-            to="/admin/history/summarize"
-            label="សង្ខេបអត្ថបទ"
-          />
+          <DropdownLink to="/admin/history/summarize" label="សង្ខេបអត្ថបទ" />
           <DropdownLink
             to="/admin/history/spell-check"
             label="កែអក្ខរាវិរុទ្ធ"
@@ -169,16 +166,10 @@ function HistoryDropdown() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-function DropdownLink({
-  to,
-  label,
-}: {
-  to: string
-  label: string
-}) {
+function DropdownLink({ to, label }: { to: string; label: string }) {
   return (
     <NavLink
       to={to}
@@ -195,5 +186,5 @@ function DropdownLink({
     >
       {label}
     </NavLink>
-  )
+  );
 }

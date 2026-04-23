@@ -80,6 +80,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               label="អ្នកប្រើប្រាស់"
               onClick={onClose}
             />
+            <NavItem to="/admin/roles" label="តួនាទី" onClick={onClose} />
           </Section>
 
           {/* Logout */}
@@ -95,7 +96,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 transition font-battambang
               "
             >
-
               ចាកចេញ
             </button>
           </Section>
@@ -151,9 +151,10 @@ function NavItem({
       onClick={onClick}
       className={`
         block px-3 py-2 rounded-md text-sm font-battambang transition
-        ${isActive
-          ? "bg-white/20 text-white font-medium"
-          : "text-white/80 hover:bg-white/10 hover:text-white"
+        ${
+          isActive
+            ? "bg-white/20 text-white font-medium"
+            : "text-white/80 hover:bg-white/10 hover:text-white"
         }
       `}
     >
