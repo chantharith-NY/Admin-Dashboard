@@ -1,4 +1,10 @@
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+  // useNavigate,
+} from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { visitorService } from "./services/visitor.service";
@@ -12,20 +18,33 @@ import DashboardPage from "./modules/dashboard/DashboardPage";
 // import SummaryHistoryPage from "./modules/history/SummaryHistoryTable";
 // import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable";
 import EntityPage from "./modules/entities/EntityPage";
+import ResetPasswordPage from "./modules/auth/ChangePasswordPage";
+import RolesPage from "./modules/roles/RolesPage";
+import OtpPage from "./modules/auth/OtpPage";
+import ForgotPasswordPage from "./modules/auth/ForgotPage";
+
+import { useAuthStore } from "./stores/authStore";
 
 export default function App() {
   const location = useLocation();
+  // const navigate = useNavigate();
 
-  // Track visitor info on initial load
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+  const token = useAuthStore((s) => s.token);
+
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     const visited = localStorage.getItem("visited_date");
 
+    if (token) {
+      fetchUser();
+    }
+
     if (visited !== today) {
-      visitorService.trackVisit().catch(() => { });
+      visitorService.trackVisit().catch(() => {});
       localStorage.setItem("visited_date", today);
     }
-  }, []);
+  }, [fetchUser, token]);
 
   return (
     <AnimatePresence mode="wait">
@@ -34,41 +53,65 @@ export default function App() {
         <Route
           path="/"
           element={
-            localStorage.getItem("admin_token")
-              ? <Navigate to="/admin" replace />
-              : <Navigate to="/admin/login" replace />
+            localStorage.getItem("admin_token") ? (
+              <Navigate to="/admin" replace />
+            ) : (
+              <Navigate to="/admin/login" replace />
+            )
           }
         />
-        <Route path="/admin/login" element={<LoginPage />} />
-        {/* PUBLIC ROUTE
-        <Route path="/admin/login" element={<LoginPage />} /> */}
 
-        {/* PROTECTED ROUTES */}
+        {/* PUBLIC */}
+        <Route path="/admin/login" element={<LoginPage />} />
+        <Route path="/admin/verify-otp" element={<OtpPage />} />
+        <Route path="/admin/change-password" element={<ResetPasswordPage />} />
+        <Route path="/admin/forgot-password" element={<ForgotPasswordPage />} />
+        {/* <Route path="" */}
+
+        {/* PROTECTED ROOT */}
         <Route
+          path="/admin"
           element={
             <ProtectedRoute>
               <AdminLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="/admin" element={<DashboardPage />} />
+          {/* DASHBOARD */}
+          <Route index element={<DashboardPage />} />
+
+          {/* USERS */}
           <Route
-            path="/admin/history/summarize"
+            path="users"
+            element={
+              <ProtectedRoute>
+                <EntityPage entity="users" />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* MODELS */}
+          <Route
+            path="models"
+            element={
+              <ProtectedRoute>
+                <EntityPage entity="models" />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ROLES */}
+          <Route path="roles" element={<RolesPage />} />
+
+          {/* HISTORY */}
+          <Route
+            path="history/summarize"
             element={<EntityPage entity="summarize" />}
           />
+
           <Route
-            path="/admin/history/spell-check"
+            path="history/spell-check"
             element={<EntityPage entity="spell-check" />}
-          />
-          {/* <Route path="/admin/models" element={<ModelsPage />} /> */}
-          <Route
-            path="/admin/models"
-            element={<EntityPage entity="models" />}
-          />
-          {/* <Route path="/admin/users" element={<UsersPage />} /> */}
-          <Route
-            path="/admin/users"
-            element={<EntityPage entity="users" />}
           />
         </Route>
       </Routes>
