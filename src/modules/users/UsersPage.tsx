@@ -8,6 +8,7 @@ import type { AdminUser } from "../../types/adminUser";
 import { usePermission } from "../../hooks/usePermission";
 import { useMessage } from "../../components/ui/MessageProvider";
 import { PlusIcon } from "lucide-react";
+import { useAuthStore } from "../../stores/authStore";
 
 import {
   getUsers,
@@ -24,12 +25,25 @@ export default function UsersPage() {
 
   const { showMessage } = useMessage();
 
-  const canCreate = usePermission("user.create");
-  const canEdit = usePermission("user.update");
-  const canDelete = usePermission("user.delete");
+  const { hasPermission } = usePermission();
+
+  // const canCreate = useMemo(
+  //   () => hasPermission("user.create"),
+  //   [hasPermission],
+  // );
+  // const canEdit = useMemo(() => hasPermission("user.update"), [hasPermission]);
+  // const canDelete = useMemo(
+  //   () => hasPermission("user.delete"),
+  //   [hasPermission],
+  // );
+  const permissions = {
+    create: hasPermission("user.create"),
+    edit: hasPermission("user.update"),
+    delete: hasPermission("user.delete"),
+  };
 
   useEffect(() => {
-    getUsers().then(setUsers);
+    fetchUsers();
   }, []);
 
   /* ---------------- Fetch user ---------------- */
@@ -45,11 +59,11 @@ export default function UsersPage() {
 
   /* ---------------- Toggle status ---------------- */
 
-  const currentUser = JSON.parse(localStorage.getItem("admin_user") || "{}");
+  const currentUser = useAuthStore((state) => state.user);
 
   const handleToggleStatus = async (user: AdminUser) => {
     // 🔒 Prevent self deactivation
-    if (user.id === currentUser.id) {
+    if (currentUser && user.id === currentUser.id) {
       showMessage("error", "អ្នកមិនអាចបិទគណនីរបស់ខ្លួនបានទេ");
       return;
     }
@@ -118,7 +132,7 @@ export default function UsersPage() {
           អ្នកប្រើប្រាស់
         </p>
 
-        {canCreate && (
+        {permissions.create && (
           <button
             onClick={() =>
               setEditingUser({
@@ -143,8 +157,8 @@ export default function UsersPage() {
 
       <DataTable
         columns={userColumns(
-          canEdit,
-          canDelete,
+          permissions.edit,
+          permissions.delete,
           setEditingUser,
           setDeleteId,
           handleToggleStatus,
