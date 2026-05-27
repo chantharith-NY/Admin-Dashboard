@@ -7,6 +7,8 @@ import { useMessage } from "../../components/ui/MessageProvider";
 import type { EntitySchema } from "../../types/entity";
 import DropdownButton from "../../components/ui/DropdownButton";
 import { usePermission } from "../../hooks/usePermission";
+// import Modal from "../../components/common/Modal";
+import UserProfileModal from "../users/UserProfileModal";
 
 interface Props {
   entity: string;
@@ -16,8 +18,12 @@ export default function EntityPage({ entity }: Props) {
   const [schema, setSchema] = useState<EntitySchema | null>(null);
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<any>(null);
+  const [viewingUser, setViewingUser] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingMode, setEditingMode] = useState(false);
   const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [resetPasswordUser, setResetPasswordUser] = useState<any>(null);
+  // const [viewing, setViewing] = useState<any>(null);
 
   const { showMessage } = useMessage();
   const { hasPermission } = usePermission();
@@ -41,6 +47,12 @@ export default function EntityPage({ entity }: Props) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleView = (row: any) => {
+    setViewingUser(row);
+
+    setEditingMode(false);
   };
 
   const handleDelete = async () => {
@@ -74,6 +86,26 @@ export default function EntityPage({ entity }: Props) {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!resetPasswordUser) return;
+
+    try {
+      await entityService.create(
+        `/users/${resetPasswordUser.id}/reset-password`,
+        {},
+      );
+
+      showMessage("success", "លេខសម្ងាត់ថ្មីត្រូវបានផ្ញើទៅអ៊ីមែល");
+    } catch (error: any) {
+      showMessage(
+        "error",
+        error.response?.data?.message || "Reset password failed",
+      );
+    } finally {
+      setResetPasswordUser(null);
+    }
+  };
+
   if (!schema) return null;
 
   const actions = schema.extra_actions ?? [];
@@ -89,7 +121,7 @@ export default function EntityPage({ entity }: Props) {
           {schema.permissions?.create &&
             hasPermission(schema.permissions.create) && (
               <button
-                onClick={() => setEditing({})}
+                onClick={() => setEditingUser({})}
                 className="bg-[#8BAD13] text-white px-4 py-2 rounded-lg"
               >
                 បន្ថែមថ្មី
@@ -126,31 +158,71 @@ export default function EntityPage({ entity }: Props) {
         schema={schema}
         data={data}
         loading={loading}
-        onEdit={(row) => setEditing(row)}
-        onDelete={(row) => setDeleteItem(row)}
+        onView={handleView}
+        onEdit={(row) => {
+          setViewingUser(row);
+          setEditingMode(true);
+        }}
+        onDelete={setDeleteItem}
         onRefresh={load}
         onStatusChange={handleStatus}
+        onCustom={(action, row) => {
+          if (action === "reset_password") {
+            setResetPasswordUser(row);
+          }
+        }}
       />
 
-      {/* Form Modal */}
-      {editing !== null && (
+      {editingUser !== null && (
         <DynamicFormModal
           schema={schema}
           entity={entity}
-          data={editing}
-          onClose={() => setEditing(null)}
-          onSuccess={(isEdit) => {
-            setEditing(null);
+          data={editingUser}
+          onClose={() => setEditingUser(null)}
+          onSuccess={() => {
+            setEditingUser(null);
 
-            showMessage(
-              "success",
-              isEdit ? "បានកែសម្រួលដោយជោគជ័យ" : "បានបង្កើតដោយជោគជ័យ",
-            );
+            showMessage("success", "បានបង្កើតដោយជោគជ័យ");
 
             load();
           }}
         />
       )}
+
+      <UserProfileModal
+        open={!!viewingUser}
+        user={viewingUser}
+        editingMode={editingMode}
+        onClose={() => {
+          setViewingUser(null);
+
+          setEditingMode(false);
+        }}
+        onSave={async (updatedUser) => {
+          if (!schema?.api?.update) return;
+
+          const endpoint = schema.api.update.replace(
+            "{id}",
+            String(updatedUser.id),
+          );
+
+          await entityService.update(endpoint, updatedUser);
+
+          showMessage("success", "បានកែប្រែដោយជោគជ័យ");
+
+          load();
+
+          setViewingUser(updatedUser);
+        }}
+        onDelete={(id) => {
+          setViewingUser(null);
+
+          setDeleteItem({ id });
+        }}
+        onResetPassword={(user) => {
+          console.log("Reset password:", user);
+        }}
+      />
 
       {/* Delete Modal */}
       <ConfirmModal
@@ -159,6 +231,15 @@ export default function EntityPage({ entity }: Props) {
         confirmText="លុបចេញ"
         onConfirm={handleDelete}
         onCancel={() => setDeleteItem(null)}
+      />
+
+      {/* Reset Password Modal */}
+      <ConfirmModal
+        open={resetPasswordUser !== null}
+        message={`តើអ្នកចង់ Reset Password សម្រាប់ ${resetPasswordUser?.name} មែនទេ?`}
+        confirmText="Reset Password"
+        onConfirm={handleResetPassword}
+        onCancel={() => setResetPasswordUser(null)}
       />
     </div>
   );

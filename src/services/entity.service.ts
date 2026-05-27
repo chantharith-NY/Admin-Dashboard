@@ -13,7 +13,10 @@ const isFile = (value: any): boolean => {
 }
 
 const buildPayload = (payload: any) => {
-  const hasFile = Object.values(payload).some(isFile)
+  if (!payload) return payload
+
+  const hasFile =
+    Object.values(payload).some(isFile)
 
   if (!hasFile) return payload
 
@@ -51,12 +54,10 @@ export const entityService = {
   },
 
   async create(endpoint: string, payload: any) {
-    const finalPayload = buildPayload(payload)
-
-    if (finalPayload instanceof FormData) {
-      return api.post(endpoint, finalPayload)
-    }
-    return api.post(endpoint, finalPayload)
+    return api.post(
+      endpoint,
+      buildPayload(payload),
+    )
   },
 
   async update(endpoint: string, payload: any) {

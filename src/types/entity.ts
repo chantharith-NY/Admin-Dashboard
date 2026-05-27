@@ -44,8 +44,17 @@ export interface TableColumnSchema {
 }
 
 export interface TableActionSchema {
-  type: "edit" | "delete" | "custom" | "toggle"
+  type:
+    | "edit"
+    | "delete"
+    | "custom"
+    | "toggle"
+    | "view"
+
   label: string
+
+  key?: string
+
   permissions?: string
 }
 

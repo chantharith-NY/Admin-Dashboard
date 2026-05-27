@@ -18,7 +18,7 @@ import DashboardPage from "./modules/dashboard/DashboardPage";
 // import SummaryHistoryPage from "./modules/history/SummaryHistoryTable";
 // import SpellCheckHistoryPage from "./modules/history/SpellCheckHistoryTable";
 import EntityPage from "./modules/entities/EntityPage";
-import ResetPasswordPage from "./modules/auth/ChangePasswordPage";
+import ResetPasswordPage from "./modules/auth/ResetPasswordPage";
 import RolesPage from "./modules/roles/RolesPage";
 import OtpPage from "./modules/auth/OtpPage";
 import ForgotPasswordPage from "./modules/auth/ForgotPage";
@@ -64,7 +64,7 @@ export default function App() {
         {/* PUBLIC */}
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/verify-otp" element={<OtpPage />} />
-        <Route path="/admin/change-password" element={<ResetPasswordPage />} />
+        <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
         <Route path="/admin/forgot-password" element={<ForgotPasswordPage />} />
         {/* <Route path="" */}
 

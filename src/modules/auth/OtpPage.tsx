@@ -4,11 +4,12 @@ import AuthLayout from "../../components/layout/AuthLayout";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function OtpPage() {
-  const { verifyOtp } = useAuth();
+  const { verifyOtp, verifyForgotOtp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const userId = location.state?.user_id;
+  const email = location.state?.email;
 
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -21,6 +22,12 @@ export default function OtpPage() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    if (!userId && !email) {
+      navigate("/admin/login");
+    }
+  }, []);
+
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -32,8 +39,34 @@ export default function OtpPage() {
     }
 
     try {
-      await verifyOtp(userId, code);
-      navigate("/admin", { replace: true });
+      if (userId) {
+        const res = await verifyOtp(userId, code);
+
+        const data = res?.data || res;
+
+        // TEMP PASSWORD USER
+        if (data.must_change_password === true) {
+          navigate("/admin/reset-password", {
+            replace: true,
+          });
+
+          return;
+        }
+
+        // NORMAL LOGIN
+        navigate("/admin", {
+          replace: true,
+        });
+      } else if (email) {
+        // FORGOT PASSWORD FLOW
+        await verifyForgotOtp(email, code);
+
+        navigate("/admin/reset-password", {
+          state: { email, otp: code },
+        });
+      } else {
+        alert("Invalid request. Please try again.");
+      }
     } catch (err: any) {
       alert(
         err.response?.data?.message ||

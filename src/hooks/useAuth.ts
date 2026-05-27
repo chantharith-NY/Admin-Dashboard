@@ -112,7 +112,12 @@ export function useAuth() {
     return res.data;
   }
 
-  const resetPassword = async (email: string, otp: string, newPassword: string, confirmPassword: string) => {
+  const resetPassword = async (
+    email: string,
+    otp: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => {
     const res = await api.post("/forgot-password/reset", {
       email,
       otp,
@@ -120,6 +125,23 @@ export function useAuth() {
       password_confirmation: confirmPassword,
     });
 
+    // 🔥 IMPORTANT: clear auth (same as changePassword)
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
+    localStorage.removeItem("refresh_token");
+
+    setIsAuthenticated(false);
+    setUser(null);
+
+    return res.data;
+  };
+
+  const verifyForgotOtp = async (email: string, otp: string) => {
+    const res = await api.post("/forgot-password/verify-otp", {
+      email,
+      otp,
+    });
+    
     return res.data;
   }
 
@@ -134,6 +156,7 @@ export function useAuth() {
     refreshToken,
     forgotPassword,
     resetPassword,
+    verifyForgotOtp,
   }
 }
 

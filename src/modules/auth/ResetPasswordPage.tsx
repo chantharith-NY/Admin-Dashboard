@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 import { useAuth } from "../../hooks/useAuth";
@@ -7,8 +7,11 @@ import AuthLayout from "../../components/layout/AuthLayout";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const { changePassword } = useAuth();
+  const email = location.state?.email;
+  const otp = location.state?.otp;
+  const { changePassword, resetPassword } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,9 +35,18 @@ export default function ResetPasswordPage() {
       setLoading(true);
       setError("");
 
-      await changePassword(password, confirmPassword);
+      // 🔥 CASE 1: Forgot Password Flow
+      if (email && otp) {
+        await resetPassword(email, otp, password, confirmPassword);
 
-      navigate("/admin/login", { replace: true });
+        navigate("/admin/login", { replace: true });
+      }
+      // 🔐 CASE 2: First Login / Change Password
+      else {
+        await changePassword(password, confirmPassword);
+
+        navigate("/admin/login", { replace: true });
+      }
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
@@ -44,6 +56,12 @@ export default function ResetPasswordPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!email && !otp && !localStorage.getItem("admin_token")) {
+      navigate("/admin/login");
+    }
+  }, []);
 
   return (
     <AuthLayout>

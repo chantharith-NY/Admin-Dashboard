@@ -9,10 +9,12 @@ interface Props {
   schema: EntitySchema;
   data: any[];
   loading: boolean;
+  onView: (row: any) => void;
   onEdit: (row: any) => void;
   onDelete: (row: any) => void;
   onRefresh: () => void;
   onStatusChange: (row: any, newValue: boolean) => void;
+  onCustom?: (actionKey: string, row: any) => void;
 }
 
 const formatDateTime = (dateString: string) => {
@@ -49,9 +51,11 @@ export default function DynamicTable({
   onRefresh,
   data,
   loading,
+  onView,
   onEdit,
   onDelete,
   onStatusChange,
+  onCustom,
 }: Props) {
   const { showMessage, showConfirm } = useMessage();
 
@@ -139,22 +143,16 @@ export default function DynamicTable({
             <input
               type="checkbox"
               checked={row[col.key]}
-              onChange={async (e) => {
+              onChange={(e) => {
                 const newValue = e.target.checked;
+
                 onStatusChange?.(row, newValue);
-
-                if (!schema.api?.patch) return;
-                const patchUrl = schema.api.patch.replace("{id}", row.id);
-
-                try {
-                  await entityService.patch(patchUrl, { [col.key]: newValue });
-                  showMessage("success", "Updated successfully"); // 🔥
-                  onRefresh();
-                } catch (error) {
-                  console.error("Failed to update status:", error);
-                  showMessage("error", "Failed to update"); // 🔥
-                }
               }}
+              className="
+                w-5 h-5
+                accent-green-600
+                cursor-pointer
+              "
             />
           );
         }
@@ -172,55 +170,146 @@ export default function DynamicTable({
     })),
 
     // Actions Column
+    // {
+    //   key: "actions",
+    //   title: "មុខងារ",
+    //   render: (row: any) => (
+    //     <div className="flex flex-col sm:flex-row gap-2">
+    //       {schema.table.actions?.map((action, index) => {
+    //         if (action.permissions && !hasPermission(action.permissions)) {
+    //           return null;
+    //         }
+
+    //         switch (action.type) {
+    //           // case "edit":
+    //           //   return (
+    //           //     <Button
+    //           //       key={index}
+    //           //       onClick={() => onEdit(row)}
+    //           //       variant="edit"
+    //           //     >
+    //           //       កែប្រែ
+    //           //     </Button>
+    //           //   );
+    //           // case "delete":
+    //           //   return (
+    //           //     <Button
+    //           //       key={index}
+    //           //       onClick={() => onDelete(row)}
+    //           //       variant="danger"
+    //           //     >
+    //           //       លុប
+    //           //     </Button>
+    //           //   );
+    //           // default:
+    //           //   return null;
+    //           case "custom":
+    //             return (
+    //               <Button
+    //                 key={index}
+    //                 onClick={() => onEdit({ ...row, _action: action.label })}
+    //               >
+    //                 {action.label}
+    //               </Button>
+    //             );
+    //         }
+    //       })}
+
+    //       {/* {schema.permissions?.update &&
+    //         hasPermission(schema.permissions.update) && (
+    //           <Button onClick={() => onEdit(row)} variant="edit">
+    //             កែប្រែ
+    //           </Button>
+    //         )}
+
+    //       {schema.permissions?.delete &&
+    //         hasPermission(schema.permissions.delete) && (
+    //           <Button onClick={() => onDelete(row)} variant="danger">
+    //             លុប
+    //           </Button>
+    //         )} */}
+    //     </div>
+    //   ),
+    // },
     {
       key: "actions",
       title: "មុខងារ",
+
       render: (row: any) => (
-        <div className="flex flex-col sm:flex-row gap-2">
-          {schema.table.actions?.map((action, index) => {
+        <div className="flex items-center gap-2">
+          {schema.table.actions?.map((action: any, index: number) => {
+            // PERMISSION CHECK
             if (action.permissions && !hasPermission(action.permissions)) {
               return null;
             }
 
-            switch (action.type) {
-              case "edit":
-                return (
-                  <Button
-                    key={index}
-                    onClick={() => onEdit(row)}
-                    variant="edit"
-                  >
-                    កែប្រែ
-                  </Button>
-                );
-              case "delete":
-                return (
-                  <Button
-                    key={index}
-                    onClick={() => onDelete(row)}
-                    variant="danger"
-                  >
-                    លុប
-                  </Button>
-                );
-              default:
-                return null;
+            /* ================= VIEW ================= */
+
+            if (action.type === "view") {
+              return (
+                <Button
+                  key={index}
+                  onClick={() => onView(row)}
+                  variant="primary"
+                >
+                  មើល
+                </Button>
+              );
             }
+
+            /* ================= EDIT ================= */
+
+            if (action.type === "edit") {
+              return (
+                <Button key={index} onClick={() => onEdit(row)} variant="edit">
+                  កែប្រែ
+                </Button>
+              );
+            }
+
+            /* ================= DELETE ================= */
+
+            if (action.type === "delete") {
+              return (
+                <Button
+                  key={index}
+                  onClick={() => onDelete(row)}
+                  variant="danger"
+                >
+                  លុប
+                </Button>
+              );
+            }
+
+            /* ================= TOGGLE STATUS ================= */
+
+            if (action.type === "toggle_status") {
+              return (
+                <Button
+                  key={index}
+                  onClick={() => onStatusChange(row, !row.is_active)}
+                  variant={row.is_active ? "warning" : "success"}
+                >
+                  {row.is_active ? "បិទ" : "បើក"}
+                </Button>
+              );
+            }
+
+            /* ================= CUSTOM ================= */
+
+            if (action.type === "custom") {
+              return (
+                <Button
+                  key={index}
+                  onClick={() => onCustom?.(action.key || action.label, row)}
+                >
+                  {action.label}
+                </Button>
+              );
+            }
+
+            return null;
           })}
-
-          {/* {schema.permissions?.update &&
-            hasPermission(schema.permissions.update) && (
-              <Button onClick={() => onEdit(row)} variant="edit">
-                កែប្រែ
-              </Button>
-            )}
-
-          {schema.permissions?.delete &&
-            hasPermission(schema.permissions.delete) && (
-              <Button onClick={() => onDelete(row)} variant="danger">
-                លុប
-              </Button>
-            )} */}
         </div>
       ),
     },

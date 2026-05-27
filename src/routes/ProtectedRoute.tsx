@@ -26,7 +26,7 @@ export default function ProtectedRoute({ children, permission }: any) {
   }
 
   if (user?.is_temporary_password) {
-    return <Navigate to="/change-password" replace />;
+    return <Navigate to="/admin/reset-password" replace />;
   }
 
   return <>{children}</>;
