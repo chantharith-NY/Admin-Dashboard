@@ -35,4 +35,4 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
     CMD wget --quiet --tries=1 --spider http://localhost:5173 || exit 1
 
 # Start the application in development mode for hot reload during development
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["serve", "-s", "dist", "-l", "5173"]

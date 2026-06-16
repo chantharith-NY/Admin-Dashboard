@@ -19,8 +19,10 @@
 /* Tooltip container */
 a.tooltip {
   position: relative;
-  text-decoration: none;   /* remove underline */
-  color: inherit;          /* inherit text color (no blue) */
+  text-decoration: none;
+  /* remove underline */
+  color: inherit;
+  /* inherit text color (no blue) */
 }
 
 /* Tooltip text */
@@ -32,7 +34,8 @@ a.tooltip span {
   left: 50%;
   transform: translateX(-50%);
   background-color: #111;
-  color: #fff;             /* tooltip text stays white */
+  color: #fff;
+  /* tooltip text stays white */
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 12px;
@@ -87,12 +90,13 @@ h1 {
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -103,7 +107,7 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
 
 .font-battambang {
   font-family: 'Battambang', sans-serif;
@@ -126,6 +130,7 @@ button:focus-visible {
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -141,6 +146,7 @@ button:focus-visible {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
